@@ -1,7 +1,7 @@
 """Paper category analysis"""
 from typing import Dict, Any
 from utils.ai_client import get_ai_response_async
-from config import METHOD_TYPES
+from config import METHOD_TYPES, ANALYSIS_CATEGORIES, RELATIONSHIP_CATEGORIES, VALID_TAXA, RESEARCH_TASKS
 from utils.method_detector import detect_methods
 from utils.pattern_detector import detect_metrics, detect_research_tasks
 import logging
@@ -135,7 +135,7 @@ Return JSON:
     }
     
     # Add relationship analysis if relationships present
-    if any(paper_categories[rel_type]['present'] for rel_type in ""):
+    if any(paper_categories[rel_type]['present'] for rel_type in RELATIONSHIP_CATEGORIES):
         relationship_prompt = """Analyze structure-animal relationships in detail.
 
 Look for these types of mechanism testing/causal methods:
@@ -179,45 +179,79 @@ async def get_combined_analysis(text: str, regex_text: str, client) -> Dict[str,
     # Get regex results first
     regex_results, evidence = detect_methods(text)
     metric_results, metric_evidence = detect_metrics(regex_text)
-    logger.info(f"Metric results: {metric_results}")
     task_results, task_evidence = detect_research_tasks(text)
     
+    prompt = """Analyze this research paper comprehensively, focusing on structure and animal biodiversity. For each category, assign a confidence score (0.0-1.0) based on how clearly the paper fits that category.
 
-    prompt = """Analyze this research paper comprehensively, focusing on vegetation structure (more focused on 3d and vertical analysis rather than 2d) and animal biodiversity. For each category, assign a confidence score (0.0-1.0) based on how clearly the paper fits that category.
-1. Study Details:
+1. Paper Categories (with confidence scores):
+    - Structure analysis - assign confidence to ONE of:
+      * vertical_3d: Analysis focuses on vertical/3D structure
+      * horizontal_2d: Analysis focuses on horizontal/2D structure
+    
+    - Animal biodiversity analysis - assign confidence to ONE of:
+      * vertical_3d: Study examines vertical distribution/movement of animals
+      * horizontal_2d: Study examines horizontal distribution/movement
+    
+    - Structure-animal relationships:
+      * correlation
+      * effect_structure_on_animals
+      * effect_animals_on_structure
+
+2. Study Details:
    - Location (country, habitat_type)
-   - Spatial extent: describe the size of the study site and the unit.
-   - Vertical layer: if vegetation structure or animal sampling or distribution is reported in vertical layers, describe the layers and the unit. Examples include height layers, or vegetation type layers. 
+   - Spatial scale (plot|stand|landscape|regional|national|global)
 
-2. Structure Analysis:
+3. Structure Analysis:
    - Data collection methods
    - Structure metrics: 
-      * cover_density: basal area, vegetation volume, canopy cover, tree density, visual obstruction,etc. Land cover does not count.
-      * height: vegetation height, etc.
-      * horizontal_heterogeneity: canopy height heterogeneity, clumpiness of vegetation patches, standard deviation of canopy cover, forest gap density, etc.
-      * vertical_heterogeneity: foliage height diveristy, rumple index, variation in canopy height, etc.
-      * landscape: connectivity, fragmentation, isolation, etc.
-      * other_structure: other structure metrics used not included in the above categories.
+      * cover_density: basal area, canopy cover, tree density, etc.
+      * height
+      * horizontal_heterogeneity
+      * vertical_heterogeneity
+      * landscape
+   - Integration approaches
 
-3. Animal Analysis:
+4. Animal Analysis:
    - Taxa studied (must be one or more of: birds, bats, primates, other_mammals, amphibians, reptiles, invertebrates)
    - Animal sampling methods
    - Animal research tasks:
-   * major_tasks: describe the major research tasks for the animal species studied. Examples include movement, behavior, habitat preference, habitat suitability, etc.
-   * acoustic_monitoring: report if the paper uses acoustic monitoring.
-   * vertical_movement: report if the paper studies vertical animal movement above ground.
+      * Species richness/diversity
+      * Abundance/Density
+      * Occurrence/Distribution: presence/absence, occupancy, prevalence, spatial distribution
+      * Community composition: species composition, assemblage structure
+      * Functional diversity: trait diversity, guilds
+      * Beta diversity: species turnover, community similarity
+      * Stratification/Niche: vertical stratification, niche segregation
+      * Movement: animal movement patterns, home range, dispersal
+      * Behavior: foraging behavior, social interactions, predation rate
+      * Habitat preference: site selection, height preferences, cover preferences
+      * Habitat suitability: habitat quality, suitability modeling, connectivity, habitat suitab
+      * Survival/Mortality: survival rates, mortality factors
+      * Acoustic characteristics: acoustic activity, vocal behavior
 
 Note: Only include analysis of animal biodiversity. Exclude any plant biodiversity analysis.
 
 Return JSON:
 {
+    "paper_categories": {
+        "structure_analysis": {
+            "vertical_3d": {"present": false, "confidence": 0.0},
+            "horizontal_2d": {"present": false, "confidence": 0.0}
+        },
+        "animal_biodiversity": {
+            "vertical_3d": {"present": false, "confidence": 0.0},
+            "horizontal_2d": {"present": false, "confidence": 0.0}
+        },
+        "structure_animal_correlation": {"present": false, "confidence": 0.0},
+        "effect_structure_on_animals": {"present": false, "confidence": 0.0},
+        "effect_animals_on_structure": {"present": false, "confidence": 0.0}
+    },
     "study_site": {
         "location": {
             "country": "text",          # Inferred from any location information
             "habitat_type": ["text"]
         },
-        "spatial_extent": {"spatial_extent": "text"},
-        "vertical_layer": {"vertical_layer": "text"}
+        "spatial_scale": {"scale_category": "text"}
     },
     "structure_details": {
         "data_collection": {
@@ -226,8 +260,9 @@ Return JSON:
                 "terrestrial_lidar": {"present": false},
                 "spaceborne_lidar": {"present": false},
                 "structure_from_motion": {"present": false},
-                "field_sampling": {"present": false, "evidence": "text"},
-                "other_remote_sensing": {"present": false, "evidence": "text"}
+                "field_sampling": {"present": false},
+                "other_remote_sensing": {"present": false},
+                "other_field": {"present": false}
             }
         },
         "metrics": {
@@ -235,17 +270,38 @@ Return JSON:
             "height": {"present": false, "metrics_used": ["text"]},
             "horizontal_heterogeneity": {"present": false, "metrics_used": ["text"]},
             "vertical_heterogeneity": {"present": false, "metrics_used": ["text"]},
-            "landscape": {"present": false, "metrics_used": ["text"]},
-            "other_structure": {"present": false, "metrics_used": ["text"]}
+            "landscape": {"present": false, "metrics_used": ["text"]}
         }
     },
     "animal_details": {
         "taxa_studied": ["text"],  # Array of taxa from: birds, bats, primates, other_mammals, amphibians, reptiles, invertebrates
         "sampling_methods": ["text"],
         "research_tasks": {
-            "major_tasks": {"present": false, "metrics_used": ["text"]},
-            "acoustic_monitoring": {"present": false, "metrics_used": ["text"]},
-            "vertical_movement": {"present": false, "metrics_used": ["text"]}
+            "species_richness": {"present": false, "metrics_used": ["text"]},
+            "abundance": {"present": false, "metrics_used": ["text"]},
+            "occurrence_distribution": {"present": false, "metrics_used": ["text"]},
+            "community_composition": {"present": false, "metrics_used": ["text"]},
+            "functional_diversity": {"present": false, "metrics_used": ["text"]},
+            "beta_diversity": {"present": false, "metrics_used": ["text"]},
+            "stratification_niche": {"present": false, "metrics_used": ["text"]},
+            "movement": {"present": false, "metrics_used": ["text"]},
+            "behavior": {"present": false, "metrics_used": ["text"]},
+            "habitat_preference": {"present": false, "metrics_used": ["text"]},
+            "habitat_suitability": {"present": false, "metrics_used": ["text"]},
+            "survival_mortality": {"present": false, "metrics_used": ["text"]},
+            "acoustic_characteristics": {"present": false, "metrics_used": ["text"]}
+        }
+    },
+    "relationship_details": {
+        "mechanism_testing": {
+            "present": false,
+            "methods": ["text"],           # experimental/observational methods used
+            "mechanisms_tested": ["text"],  # specific mechanisms investigated
+            "evidence_type": {             # Types of evidence provided
+                "experimental": false,      # e.g., experimental manipulation of structure
+                "natural_experiment": false, # e.g., comparing different structural conditions
+                "statistical": false       # e.g., correlation, regression, path analysis
+            }
         }
     }
 }
@@ -291,8 +347,8 @@ Notes:
                 "evidence": "",
                 "metrics_used": []
             }
-        # do not update values from regex detection
-        # metrics_section[metric]["present"] = metric_results[metric]
+        # Update values from regex detection
+        metrics_section[metric]["present"] = metric_results[metric]
         metrics_section[metric]["regex_detected"] = metric_results[metric]
         if metric_evidence.get(metric):
             metrics_section[metric]["evidence"] = metric_evidence[metric]
@@ -312,8 +368,9 @@ Notes:
                 "evidence": "",
                 "metrics_used": []
             }
-        # Add regex results without modifying GPT results
+        tasks_section[task]["present"] = task_results[task]
         tasks_section[task]["regex_detected"] = task_results[task]
-        tasks_section[task]["regex_evidence"] = task_evidence.get(task, "")
+        if task_evidence.get(task):
+            tasks_section[task]["evidence"] = task_evidence[task]
     
     return gpt_results 

@@ -1,0 +1,483 @@
+filename,num_pages,file_size,author,creation_date,title,study_site,study_area_size,spatial_scale,text,birds,bats,other_small_mammals,reptiles,amphibians,invertebrates,other_taxa,airborne_lidar,spaceborne_lidar,terrestrial_lidar,field_data,other_remote_sensing,other_rs_details,metric_cover_density,metric_height,metric_horizontal_heterogeneity,metric_vertical_heterogeneity,metric_landscape,metric_other,metric_other_details,uses_vertical_strata,strata_definition,number_of_strata,strata_details,uses_viewshed,viewshed_details,uses_acoustic,acoustic_details,task_movement,task_movement_details,task_functional_trait,task_functional_trait_details,task_distribution_occupancy,task_distribution_occupancy_details,task_prevalence,task_prevalence_details,task_use_of_space,task_use_of_space_details,task_behaviors,task_behaviors_details,task_life_history,task_life_history_details,task_habitat_preference,task_habitat_preference_details,task_abundance_density,task_abundance_density_details,task_stratification_niche,task_stratification_niche_details,task_species_richness_diversity,task_species_richness_diversity_details,task_community_composition,task_community_composition_details,task_functional_richness_diversity,task_functional_richness_diversity_details,task_community_similarity,task_community_similarity_details,task_acoustic_characteristics,task_acoustic_characteristics_details,task_habitat_suitability,task_habitat_suitability_details,task_other_tasks,task_other_tasks_details
+014 Martinuzzi et al 2009 mapping snags and understory shrubs.pdf,14,4672.6337890625,Sebastián Martinuzzi; Lee A. Vierling; William A. Gould; Michael J. Falkowski; Jeffrey S. Evans; Andrew T. Hudak; Kerri T. Vierling,D:20091015222749Z00'00',Mapping snags and understory shrubs for a LiDAR-based assessment of wildlife habitat suitability,Error in extraction,Not specified,Not specified,"ABSTRACT:
+article info
+Article history:
+Received 25 February 2009Received in revised form 24 June 2009Accepted 2 July 2009
+
+",False,False,False,False,False,False,False,False,False,False,False,False,error in extraction,False,False,False,False,False,False,error in extraction,False,Not specified,Not specified,Not specified,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none
+016 Zahawi et al 2015 using lightweight uavs to monitor tropical forest recovery.pdf,9,1522.173828125,Rakan A. Zahawi,D:20150424014913Z00'00',Using lightweight unmanned aerial vehicles to monitor tropical forest recovery,Error in extraction,Not specified,Not specified,"ABSTRACT:
+Large areas of tropical lands are being removed from agriculture and restored to address conservation
+goals. However, monitoring the ecological value of these efforts at the individual land-owner scale is rare,
+owing largely to issues of cost and accessibility. Traditional ﬁeld-based measures for assessing forest
+recovery and habitat quality can be labour intensive and costly. Here we assess whether remote sensingmeasurements from lightweight unmanned aerial vehicles (UAV) are a cost-effective substitute for tradi-tional ﬁeld measures. An inexpensive UAV-based remote sensing methodology, ‘‘Ecosynth’’, was applied
+to measure forest canopy structure across ﬁeld plots in a 7–9-yr tropical forest restoration study in south-
+ern Costa Rica. Ecosynth methods combine aerial images from consumer-grade digital cameras with com-puter vision software to generate 3D ‘point cloud’ models of vegetation at high spatial resolutions.
+Ecosynth canopy structure measurements were compared to ﬁeld-based measures and their ability to
+predict the abundance of frugivorous birds; key seed dispersers that are sensitive to canopy structure.Ecosynth canopy height measurements were highly correlated with ﬁeld-based measurements
+(R
+2P0.85), a result comparable in precision to LiDAR-based remote sensing measurements. Ecosynth
+parameters were also strongly correlated with above-ground biomass ( R2P0.81) and percent canopy
+openness ( R2= 0.82). Correlations were weaker with proportion-based measures such as canopy rough-
+ness ( R2= 0.53). Several Ecosynth metrics (e.g., canopy openness and height) predicted frugivore presence
+and abundance at levels of accuracy similar to those of ﬁeld-based measurements. Ecosynth UAV remote-
+sensing provides an effective alternate methodology to traditional ﬁeld-based measures of evaluating for-est structure and complexity across landscapes. Furthermore, given the volume of data that can be gen-
+erated in a single ﬂight plan, as well as the ability to use the technology in remote areas, these methods
+could expand the scope of studies on forest dynamics and recovery when combined with ﬁeld-based cali-bration plots.
+/C2112015 Elsevier Ltd. All rights reserved.
+1. Introduction
+Secondary tropical forest cover is increasing rapidly in some
+regions, particularly in hilly, montane landscapes that are marginal
+for agriculture ( Asner, 2009 ), due to both natural regeneration and
+active restoration ( Aide et al., 2013; Lamb, 2011 ). This trend is dri-
+ven by a complex set of drivers and is facilitated by increasing
+interest in the role that forest recovery may play in sequestering
+carbon as part of efforts to reduce emissions from deforestationand forest degradation (REDD+, Edwards et al., 2010; Harvey
+et al., 2010 ). An ongoing challenge to such efforts, however, is
+cost-effective monitoring, particularly for landowners at the local
+level ( De Sy et al., 2012 ).
+Assessments of forest recovery in degraded landscapes typically
+focus on a number of parameters such as the abundance of tree
+recruits, community composition of vegetation, structural dynam-
+ics such as plant height and branching architecture, or measures of
+habitat quality in terms of their use by different animal guilds (e.g.,
+Rodrigues et al., 2013 ). Structural complexity, and in particular
+plant height, is often strongly associated with increased visitation
+by avian frugivores, which can lead to greater tree seed dispersal
+and seedling recruitment ( Duncan and Chapman, 1999;
+http://dx.doi.org/10.1016/j.biocon.2015.03.031
+0006-3207/ /C2112015 Elsevier Ltd. All rights reserved.⇑Corresponding author.
+E-mail address: zahawi@ots.ac.cr (R.A. Zahawi).Biological Conservation 186 (2015) 287–295
+Contents lists available at ScienceDirect
+Biological Conservation
+journal homepage: www.elsevier.com/locate/biocon
+
+McDonnell, 1986 ). Estimates of tree height, in conjunction with
+diameter at breast height and wood speciﬁc gravity, can also be
+used to estimate aboveground carbon accumulation or stock
+(Chave et al., 2005 ). Accordingly, these measures can evaluate
+how a particular site is responding to a restoration intervention
+(Holl and Zahawi, 2014 ), determine if management practices have
+impacted forests ( Imai et al., 2009 ), or assess how biomass changes
+in response to a particular pressure such as climate change
+(Phillips et al., 2011 ). Collecting these data in the ﬁeld, however,
+is time consuming, expensive, and requires skilled ﬁeld techni-
+cians. Additionally, site access can be complicated if it involves
+multiple landowners. Long-term monitoring of forest recovery
+and restoration projects is critical to evaluating success and pro-
+viding guidance on how to invest scarce resources, but such moni-
+toring is commonly inconsistent or lacking ( Melo et al., 2013; Ruiz-
+Jaen and Aide, 2005 ), in part due to cost.
+Alternate approaches to evaluate change in forest structure and
+composition using remote sensing technology have shown promise
+in alleviating the need for time consuming and costly ﬁeld-meth-
+ods, and may provide additional parameters for assessing habitats
+that are not logistically feasible with on-the-ground ﬁeld surveys
+(Mascaro et al., 2014 ). Of the remote sensing technologies avail-
+able, Light Detection and Ranging (LiDAR), which uses laser pulses
+to determine distances between structures, as well as spectral
+imaging (hyperspectral, multispectral), have all shown potential
+value for ecological applications. LiDAR data can quantify structure
+in three-dimensions (3D), and this information can be used toevaluate habitat suitability for different fauna ( Goetz et al., 2007;
+Jung et al., 2012; Turner, 2014; Vierling et al., 2008 ), estimate tree
+height with a high degree of accuracy ( Andersen et al., 2006 ), and
+determine aboveground biomass and carbon density ( Asner et al.,
+2012; Goetz and Dubayah, 2011; Lefsky et al., 2002 ) among other
+applications. Although application of LiDAR to ecological problems
+has shown great promise, conventional airborne LiDAR acquisi-
+tions remain prohibitively expensive for most monitoring projects
+and ﬁeld-studies as a typical acquisition costs at least $20,000 per
+ﬂight, regardless of the size of the study area ( Erdody and Moskal,
+2010 ).
+Recent advances in remote sensing using lightweight
+unmanned aerial vehicles (UAV; Fig. 1 )(Anderson and Gaston,
+2013 ) are providing an alternate option using digital images and
+computer software. With costs running from as low as $300 to afew thousand dollars ( Koh and Wich, 2012; Schiffman, 2014 ),
+UAVs can potentially provide researchers and technicians with a
+ﬁeld-portable remote sensing device that enables low-cost collec-
+tion of data when and where needed. The ‘Ecosynth’ methodology
+(http://ecosynth.org/ ) processes large sets of overlapping digital
+photographs using open-source software and computer vision
+‘structure from motion’ algorithms to create 3D models of above-
+ground vegetation ( Dandois and Ellis, 2010, 2013 ). The information
+is made available in the form of 3D ‘point clouds’, wherein each
+individual data point has 3 coordinates describing the horizontal
+and vertical position of a surface viewed within the photographs,
+together with red–green–blue (RGB) colour information. Such
+Fig. 1. Overhead view of an Ecosynth non_GPS canopy height model (CHM) (a) of one ﬁeld site showing the three restoration treatments, each outlined by hatch marks. Right
+panels show oblique views of the Ecosynth 3D-RGB point cloud for the island (b), passive (c), and plantation (d) treatments as in (a) with the non_GPS DTM represented as a
+1 m grid of white points; approximate viewpoint indicated by black arrow. Photos (e) from left to right: hexacopter; prepping a hexacopter for a ﬂight; and an automated
+landing approach at a ﬁeld site.288 R.A. Zahawi et al. / Biological Conservation 186 (2015) 287–295
+point cloud data can then be used to estimate a number of ecologi-
+cally important variables similar to those LiDAR technologies can
+provide, including canopy height models, canopy structure and
+roughness metrics ( Dandois and Ellis, 2010, 2013 ), and can poten-
+tially be used to estimate above-ground biomass or carbon accu-
+mulation. Although Ecosynth technology has produced high
+precision results for canopy height and structure in relatively
+homogenous, forested terrain, the ability of these methods to accu-
+rately assess vegetation structure and habitat quality in more
+remote study sites with rough, undulating terrain and variable veg-
+etation cover has not been evaluated.
+A vital component of estimating canopy height and structural
+metrics from any 3D remote sensing product is the ability to accu-
+rately characterize ground topography in the form of a Digital
+Terrain Model (DTM; Drake et al., 2002; Evans and Hudak, 2007 ).
+For LiDAR data, this is carried out by classifying ‘ground’ and ‘non-
+ground’ points using terrain-ﬁltering algorithms. However, prior
+research has shown that such algorithms do not work well when
+applied to Ecosynth point clouds in areas of dense canopy cover
+due to the paucity of understory points registered, such that the best
+
+METHODS:
+combine aerial images from consumer-grade digital cameras with com-puter vision software to generate 3D ‘point cloud’ models of vegetation at high spatial resolutions.
+Ecosynth canopy structure measurements were compared to ﬁeld-based measures and their ability to
+predict the abundance of frugivorous birds; key seed dispersers that are sensitive to canopy structure.Ecosynth canopy height measurements were highly correlated with ﬁeld-based measurements
+(R
+2P0.85), a result comparable in precision to LiDAR-based remote sensing measurements. Ecosynth
+parameters were also strongly correlated with above-ground biomass ( R2P0.81) and percent canopy
+openness ( R2= 0.82). Correlations were weaker with proportion-based measures such as canopy rough-
+ness ( R2= 0.53). Several Ecosynth metrics (e.g., canopy openness and height) predicted frugivore presence
+and abundance at levels of accuracy similar to those of ﬁeld-based measurements. Ecosynth UAV remote-
+sensing provides an effective alternate methodology to traditional ﬁeld-based measures of evaluating for-est structure and complexity across landscapes. Furthermore, given the volume of data that can be gen-
+erated in a single ﬂight plan, as well as the ability to use the technology in remote areas, these methods
+could expand the scope of studies on forest dynamics and recovery when combined with ﬁeld-based cali-bration plots.
+/C2112015 Elsevier Ltd. All rights reserved.
+1. Introduction
+Secondary tropical forest cover is increasing rapidly in some
+regions, particularly in hilly, montane landscapes that are marginal
+for agriculture ( Asner, 2009 ), due to both natural regeneration and
+active restoration ( Aide et al., 2013; Lamb, 2011 ). This trend is dri-
+ven by a complex set of drivers and is facilitated by increasing
+interest in the role that forest recovery may play in sequestering
+carbon as part of efforts to reduce emissions from deforestationand forest degradation (REDD+, Edwards et al., 2010; Harvey
+et al., 2010 ). An ongoing challenge to such efforts, however, is
+cost-effective monitoring, particularly for landowners at the local
+level ( De Sy et al., 2012 ).
+Assessments of forest recovery in degraded landscapes typically
+focus on a number of parameters such as the abundance of tree
+recruits, community composition of vegetation, structural dynam-
+ics such as plant height and branching architecture, or measures of
+habitat quality in terms of their use by different animal guilds (e.g.,
+Rodrigues et al., 2013 ). Structural complexity, and in particular
+plant height, is often strongly associated with increased visitation
+by avian frugivores, which can lead to greater tree seed dispersal
+and seedling recruitment ( Duncan and Chapman, 1999;
+http://dx.doi.org/10.1016/j.biocon.2015.03.031
+0006-3207/ /C2112015 Elsevier Ltd. All rights reserved.⇑Corresponding author.
+E-mail address: zahawi@ots.ac.cr (R.A. Zahawi).Biological Conservation 186 (2015) 287–295
+Contents lists available at ScienceDirect
+Biological Conservation
+journal homepage: www.elsevier.com/locate/biocon
+
+McDonnell, 1986 ). Estimates of tree height, in conjunction with
+diameter at breast height and wood speciﬁc gravity, can also be
+used to estimate aboveground carbon accumulation or stock
+(Chave et al., 2005 ). Accordingly, these measures can evaluate
+how a particular site is responding to a restoration intervention
+(Holl and Zahawi, 2014 ), determine if management practices have
+impacted forests ( Imai et al., 2009 ), or assess how biomass changes
+in response to a particular pressure such as climate change
+(Phillips et al., 2011 ). Collecting these data in the ﬁeld, however,
+is time consuming, expensive, and requires skilled ﬁeld techni-
+cians. Additionally, site access can be complicated if it involves
+multiple landowners. Long-term monitoring of forest recovery
+and restoration projects is critical to evaluating success and pro-
+viding guidance on how to invest scarce resources, but such moni-
+toring is commonly inconsistent or lacking ( Melo et al., 2013; Ruiz-
+Jaen and Aide, 2005 ), in part due to cost.
+Alternate approaches to evaluate change in forest structure and
+composition using remote sensing technology have shown promise
+in alleviating the need for time consuming and costly ﬁeld-meth-
+ods, and may provide additional parameters for assessing habitats
+that are not logistically feasible with on-the-ground ﬁeld surveys
+(Mascaro et al., 2014 ). Of the remote sensing technologies avail-
+able, Light Detection and Ranging (LiDAR), which uses laser pulses
+to determine distances between structures, as well as spectral
+imaging (hyperspectral, multispectral), have all shown potential
+value for ecological applications. LiDAR data can quantify structure
+in three-dimensions (3D), and this information can be used toevaluate habitat suitability for different fauna ( Goetz et al., 2007;
+Jung et al., 2012; Turner, 2014; Vierling et al., 2008 ), estimate tree
+height with a high degree of accuracy ( Andersen et al., 2006 ), and
+determine aboveground biomass and carbon density ( Asner et al.,
+2012; Goetz and Dubayah, 2011; Lefsky et al., 2002 ) among other
+applications. Although application of LiDAR to ecological problems
+has shown great promise, conventional airborne LiDAR acquisi-
+tions remain prohibitively expensive for most monitoring projects
+and ﬁeld-studies as a typical acquisition costs at least $20,000 per
+ﬂight, regardless of the size of the study area ( Erdody and Moskal,
+2010 ).
+Recent advances in remote sensing using lightweight
+unmanned aerial vehicles (UAV; Fig. 1 )(Anderson and Gaston,
+2013 ) are providing an alternate option using digital images and
+computer software. With costs running from as low as $300 to afew thousand dollars ( Koh and Wich, 2012; Schiffman, 2014 ),
+UAVs can potentially provide researchers and technicians with a
+ﬁeld-portable remote sensing device that enables low-cost collec-
+tion of data when and where needed. The ‘Ecosynth’ methodology
+(http://ecosynth.org/ ) processes large sets of overlapping digital
+photographs using open-source software and computer vision
+‘structure from motion’ algorithms to create 3D models of above-
+ground vegetation ( Dandois and Ellis, 2010, 2013 ). The information
+is made available in the form of 3D ‘point clouds’, wherein each
+individual data point has 3 coordinates describing the horizontal
+and vertical position of a surface viewed within the photographs,
+together with red–green–blue (RGB) colour information. Such
+Fig. 1. Overhead view of an Ecosynth non_GPS canopy height model (CHM) (a) of one ﬁeld site showing the three restoration treatments, each outlined by hatch marks. Right
+panels show oblique views of the Ecosynth 3D-RGB point cloud for the island (b), passive (c), and plantation (d) treatments as in (a) with the non_GPS DTM represented as a
+1 m grid of white points; approximate viewpoint indicated by black arrow. Photos (e) from left to right: hexacopter; prepping a hexacopter for a ﬂight; and an automated
+landing approach at a ﬁeld site.288 R.A. Zahawi et al. / Biological Conservation 186 (2015) 287–295
+point cloud data can then be used to estimate a number of ecologi-
+cally important variables similar to those LiDAR technologies can
+provide, including canopy height models, canopy structure and
+roughness metrics ( Dandois and Ellis, 2010, 2013 ), and can poten-
+tially be used to estimate above-ground biomass or carbon accu-
+mulation. Although Ecosynth technology has produced high
+precision results for canopy height and structure in relatively
+homogenous, forested terrain, the ability of these methods to accu-
+rately assess vegetation structure and habitat quality in more
+remote study sites with rough, undulating terrain and variable veg-
+etation cover has not been evaluated.
+A vital component of estimating canopy height and structural
+metrics from any 3D remote sensing product is the ability to accu-
+rately characterize ground topography in the form of a Digital
+Terrain Model (DTM; Drake et al., 2002; Evans and Hudak, 2007 ).
+For LiDAR data, this is carried out by classifying ‘ground’ and ‘non-
+ground’ points using terrain-ﬁltering algorithms. However, prior
+research has shown that such algorithms do not work well when
+applied to Ecosynth point clouds in areas of dense canopy cover
+due to the paucity of understory points registered, such that the best",False,False,False,False,False,False,False,False,False,False,False,False,error in extraction,False,False,False,False,False,False,error in extraction,False,Not specified,Not specified,Not specified,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none
+026 Journal of Applied Ecology - 2007 - Meyer - Ecological correlates of vulnerability to fragmentation in Neotropical bats.pdf,11,355.4267578125,FuHT,D:20080115105559Z00'00',Ecological correlates of vulnerability to fragmentation in Neotropical bats,Error in extraction,Not specified,Not specified,"METHODS:
+STUDY 
+  
+AREA 
+Data on bat species occupancy and abundance were collected be-
+tween October 2003 and October 2005 on several land-bridge is-lands in Lake Gatún, Panama (Fig. 1). Formation of this largeartificial reservoir was completed in 1914, resulting in more than 200forested islands ranging in size from  
+< 
+ 1 ha to the 1560-ha Barro
+Colorado Island (BCI) (Adler & Seamon 1991). Together with five
+adjacent mainland peninsulas, BCI forms the 5400-ha Barro Colo-rado Nature Monument (BCNM). The BCNM is contiguous withSoberanía National Park, 22 000 ha of forest stretching along theeastern side of the canal (Fig. 1). Forests in the area are classified aslowland tropical moist forest (Holdridge 1967). The study area ex-periences a strongly seasonal climate with a long rainy season punc-tuated by a 4-month dry season (Windsor 1990). Strong dry-season
+winds have a major impact on forest structure and dynamics, par 
+- 
+ticularly on exposed islands where forest is shorter in stature and less
+diverse in tree species composition (Leigh, Wright & Herre 1993).
+We selected 11 islands that differed in size (2·5–50 ha) and isola-
+tion (0·02–3·4 km) as well as six mainland sites on three peninsulas(Bohio, Gigante and Peña Blanca) within the BCNM (Fig. 1). To in-
+vestigate potential edge-effects, a paired design with one forest edge
+and one forest interior site at each of these mainland locations wasadopted (mean distance between interior and edge sites 312  
+± 
+ 42
+(SE) m). 
+BAT 
+  
+SAMPLING 
+At each island and mainland site, bats were sampled in a standardized
+manner with mist-nets set along the perimeter of plots of ~0·5 ha(typically 50  
+× 
+ 100 m). We used six 6-m nets set at ground level and one
+net wall consisting of four stacked 6-m nets, reaching subcanopy(mainland sites) or canopy level (islands). Canopy height across studysites averaged  
+< 
+ 20 m and was often  
+< 
+ 15 m on islands. Identification
+was based on a key for the bats of the lowlands of Panama (Handley  
+et al. 
+,
+unpublished). The nomenclature follows Simmons (2005). Standardmeasurements and demographic data were collected following Handley 
+et al 
+. (1991). Each site was sampled for 7–8 nights (from dusk until dawn)
+over the 2-year period, with a minimum time interval of 30 days betweennetting nights. Species accumulation curves indicated that the bat
+fauna at each site was sampled adequately (C. F. J. Meyer & E. K. V.
+Kalko, unpublished data). In total, we obtained 8447 captures rep-
+resenting five families and 39 species (C. F. J. Meyer & E. K. V. Kalko,unpublished data). For the purpose of this study we excluded, exceptfor the mormoopid bat  
+Pteronotus parnellii 
+, all non-phyllostomid species,
+as they cannot be sampled adequately with mist-nets (Kalko 1998),as well as species that were captured extremely rarely ( 
+< 
+ four cap-
+tures) on the mainland. This resulted in 23 study species for analysis. 
+DERIVATION 
+  
+OF 
+  
+EXPLANATORY 
+  
+VARIABLES 
+Values for explanatory variables for each bat species were derived from
+our capture data and/or collated from the literature.
+Fig. 1. Map of the study region in the Canal area in central Panama (inset) (modiﬁed from GIS coverage, D. Kinner and R. Stallard, US
+Geological Survey, 2003). Highlighted in black are the locations of the 11 study islands in Gatún Lake and of the six sites ( /H17039) in continuous forest
+on the mainland.
+ 13652664, 2008, 1, Downloaded from https://besjournals.onlinelibrary.wiley.com/doi/10.1111/j.1365-2664.2007.01389.x by University Of California, Wiley Online Library on [14/05/2024]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+ 
+384 
+C. F. J. Meyer 
+ et al. 
+© 2007 The Authors. Journal compilation © 2007 British Ecological Society,  
+Journal of Applied Ecology 
+,  
+45 
+, 381–391 
+Natural abundance in continuous forest 
+Natural abundance was calculated for each species as the mean cap-
+ture rate (recaptures excluded) per mist-net hour (mnh; 1 mnh  
+= 
+ one
+6-m net open for 1 h) at mainland interior sites. 
+Body mass 
+We used mean adult body mass obtained from our capture data as
+a measure of body size. 
+Edge-sensitivity 
+Following Harper  
+et al 
+. (2005), we calculated for each species the
+magnitude of edge sensitivity ( 
+ES 
+), i.e. the difference in captures at
+mainland edge relative to mainland interior sites, as:
+ES  
+= 
+ (N 
+edge 
+ – N 
+interior 
+)/(N 
+edge 
+  
++ 
+ N 
+interior 
+). eqn 1
+We used total captures excluding recaptures, as capture effort was
+nearly the same for each site. The  
+ES 
+ index can assume values from
+–1 (highly edge-sensitive, no captures at edges) to  
++ 
+1 (no captures in
+forest interior, only at edges). 
+Trophic level 
+Species were assigned to one of two broad trophic groups, animal-
+ivorous or phytophagous, which best reflects the main trophic struc-
+ture of phyllostomid assemblages in our study area (Giannini &Kalko 2004, 2005). All animalivorous phyllostomids are gleaningbats that take food from surfaces. 
+Dietary specialization 
+Based on the literature (see Table S1 in Supplementary material),
+we assigned each species to one of three categories of food speciali-zation. The majority of the data consisted of fecal samples, butprey remains from feeding roosts also contributed to the foodrecords. Dietary records were defined as one observation of aparticular food item. First, food items were divided broadly intofour categories: (a) fruit, (b) nectar or pollen, (c) arthropods and(d) vertebrates. We then calculated the percentage contribution ofeach food category to total dietary records for each bat species.
+Species were assigned to the least specialized category if two or
+more of the food categories contributed  
+> 
+ 10% to all food records.
+The second category consisted of species where one food categorycontributed  
+> 
+ 90% to all food records. Species with an even
+narrower diet spectrum were separated further based on the rela-tive contribution of particular food items and assigned to the thirdcategory. Enhanced consumption of the locally most abundantresource does not necessarily indicate dietary specialization of a
+species. For example, as there are many more insects than plantspecies providing food for bats, we considered an animalivorousspecies as specialized only if one prey order contributed more than
+three-quarters to the food records. For frugivores, according to ourdefinition, this proportion needed to be from one plant genus.Moreover, because figs constitute the dominant portion of the dietof many frugivorous phyllostomids in the study region (Kalko,Handley & Handley 1996), a species with a mainly fig diet was con-
+sidered specialized only if figs comprised more than 90% of its dietaryrecords. 
+Vertical stratiﬁcation 
+We derived the vertical niche of each species by calculating the pro-
+portion of captures in ground nets vs. high nets. For this, we countedonly the two upper nets of the net wall as high nets, reflecting cap-ture heights of  
+c 
+. 8–14 m vs. ground nets with  
+< 
+ 3 m. Captures were
+expressed as capture rate per mnh to account for capture effort.
+Species were assigned to one of three categories of vertical stratifica-tion: (U) understorey species,  
+< 
+ 33% of all captures in high nets; (N)
+opportunistic species without preference, 33–66% of all captures inhigh nets; (C) species with subcanopy/canopy preference,  
+> 
+ 66% of
+all captures in high nets. 
+Mobility 
+We derived species mobility from mark–recapture data of the BCI
+long-term bat project (Kalko  
+et al 
+. 1996; unpublished data), consist-
+ing of nearly 50 000 captures and recaptures from BCI and adjacentpeninsulas. We calculated the distance between marking and recapture
+site, excluding juveniles from the calculations as they may exhibit
+different movement patterns than adults. One species,  
+A. jamaicen-
+sis 
+, had several hundred recaptures in the database, so 50 recaptures
+were selected randomly, which was sufficient as variance in distancesstabilized after 50 records. For the other species, all recaptures wereincluded. To assess the degree of mobility (i.e. activity range), mean(excluding zeros) and maximum recapture distance were calculatedand plotted. We then grouped the species into three categories ofmobility (low, intermediate, high; see Supplementary material, Table S1and Figure S1). 
+Wing morphology 
+We used data on aspect ratio and relative wing loading (mass-
+corrected index of wing loading; Norberg 1998) collected by
+one of us (W . P . L.) in Costa Rica and Panama. Values weredetermined from photographs (Olympus  
+μ 
+-II camera) taken
+of the extended left wing of each bat and analysed with theprogram analySIS 3·1 (Soft Imaging System Corp., Lake-
+wood, CO, USA). Following Norberg & Rayner (1987), thehead was excluded from calculations of wing area. 
+ESLIs 
+We calculated two  
+ESLI 
+s, average carrying capacity and patch con-
+nectivity, as proposed by Vos  
+et al 
+. (2001). First, average carrying
+capacity of patch  
+i 
+ in a landscape of  
+n 
+ patches is defined as:
+eqn 2
+where  
+A 
+i 
+ is the area of patch  
+i 
+ and  
+IAR 
+i 
+ is the individual area require-
+ment of one reproductive unit (e.g. home range) of a particular speciesin patch i. In the same landscape, this index is higher for species with
+small individual area requirements than for species with greater
+area requirements. Secondly, Vos et al. (2001) combined a measure
+of patch isolation with individual species mobility in an index of
+average patch connectivity:
+eqn 3ESLIA
+IARni
+i in
+K  ,=
+=∑
+1
+ESLI A e njd
+in
+ij
++  ,=−
+=∑α
+1
+ 13652664, 2008, 1, Downloaded from https://besjournals.onlinelibrary.wiley.com/doi/10.1111/j.1365-2664.2007.01389.x by University Of California, Wiley Online Library on [14/05/2024]. See the Terms and Conditions (https://onlinelibrary.wiley.com/terms-and-conditions) on Wiley Online Library for rules of use; OA articles are governed by the applicable Creative Commons License
+
+Correlates of fragmentation sensitivity in Neotropical bats 385
+© 2007 The Authors. Journal compilation © 2007 British Ecological Society, Journal of Applied Ecology , 45, 381–391where dij is the distance between patches i and j, and α is a
+species-speciﬁc dispersal parameter. Species with good dis-persal abilities , i.e. small α, therefore exhibit larger connectiv-
+ity values than relatively poor dispersers. For ESLI
++ , the
+dispersal parameter was calculated based on maximum dis-persal distances derived from mark–recapture data of the BCI
+long-term bat project (see above). To obtain values that yield
+close to zero contributions at distances beyond the maximumdispersal distance, α was calculated as α = –ln(0·001)/ d
+max
+(Vos et al. 2001; Swihart et al. 2003a). ESLI+ was quantiﬁed
+for landscapes delimited as circular buffer zones with a radius
+of 1·5 km surr ounding each study island. The focal scale
+encompassed the expected home ranges of different-sized batspecies and minimized spatial overlap between neighbouringislands. For the calculation of ESLI
+K, individual area require-
+ments were taken either directly from published accounts onmaximum home range sizes or were predicted by regressingmaximum recapture distances against published data onmaximum home range sizes ( F
+1,7 = 8·74, P = 0·021, r2 = 0·56).
+Model set explored
+Our a priori  set of candidate models consisted of a total of
+13 models. We did not consider interaction effects because oflimited sample size but, in addition to the nine above-men-tioned predictor variables, we included four additive models,each of which explored the joint contribution of several fac-tors:
+1.Dispersal model: mobility, body mass, relative wing loading,
+aspect ratio and edge-sensitivity.2.Population size model: natural abundance, body mass and trophic
+position.3.Specialization model: dietary specialization, vertical stratiﬁcation
+and edge-sensitivity.
+4.ESLIs : ESLI
++ and ESLIK.
+DATA  ANALYSIS
+It is important to correct for the statistical non-independence of
+taxa in such a multi-species study, and we therefore performed allanalyses on phylogenetically independent contrasts (Felsenstein1985), generated with the pdap  package implemented in Mesquite
+(Midford, Garland & Maddison 2005). Taxonomic relationshipsbetween species were inferred based on the phylogeny provided by
+Baker et al . (2003). Branches were set to equal length (Garland,
+Harvey & Ives 1992). We also conducted species-level analyses on
+data not corrected for phylogeny, and for comparison provide those",False,False,False,False,False,False,False,False,False,False,False,False,error in extraction,False,False,False,False,False,False,error in extraction,False,Not specified,Not specified,Not specified,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none,False,none

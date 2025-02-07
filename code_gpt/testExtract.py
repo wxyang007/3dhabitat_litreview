@@ -7,29 +7,30 @@ from PyPDF2 import PdfReader
 from utils.data_processing import save_results, print_summaries
 from analyzers.categories import get_combined_analysis
 from utils.ai_client import init_client
-from utils.logger import setup_logger
+# from utils.logger import setup_logger
 from config import ROOT_PATH, MAX_TOTAL_CHARS, MAX_ABSTRACT_CHARS
+from typing import Dict, Tuple
 
-logger = setup_logger()
+# logger = setup_logger()
 
 def extract_sections(text: str) -> str:
     """Extract abstract and methods/study area/data sections"""
     # Set maximum sizes
     # max_total_chars = 5000
     # max_abstract_chars = 1000
-    
-   # Find all possible variations for section headers
+
+    # Find all possible variations for section headers
     keyword_patterns = [
         r'key\s*-?\s*words?',  # matches: keywords, key words, key-words
         r'key\s*-?\s*word\s+list',
         r'index\s+terms?'
     ]
-    
+
     abstract_patterns = [
         r'abstract',
         r'summary'
     ]
-    
+
     intro_patterns = [
         r'(?:1\.?\s*)?introduction\s*:?\s*\n',  # matches: Introduction\n, 1. Introduction:\n
         r'(?:1\.?\s*)?background\s*:?\s*\n',
@@ -68,7 +69,7 @@ def extract_sections(text: str) -> str:
         r'(?:\d\.?\s*)?appendix\s*:?\s*\n',
         r'(?:\d\.?\s*)?supplementary\s+materials?\s*:?\s*\n'
     ]
-    
+
     # in case we need to revert to the original text
     raw_text = text
 
@@ -90,13 +91,14 @@ def extract_sections(text: str) -> str:
     for pattern in later_patterns:
         match = re.search(pattern, methods_text, re.IGNORECASE)
         if match:
+            print(pattern)
             later_start = min(later_start, match.start())
             break
 
     # Remove later sections from text
     if (later_start < 999999) & (later_start > 0):
         methods_text = methods_text[:later_start]
-        logger.info(f"Removed later sections from text of length {later_start} chars")
+        print(f"Removed later sections from text of length {later_start} chars")
     else:
         methods_text = methods_text[:MAX_TOTAL_CHARS]
 
@@ -110,34 +112,34 @@ def extract_sections(text: str) -> str:
     # Remove intro section from text
     if intro_start >= 0:
         text = text[:intro_start]
-        logger.info(f"Removed intro section from text of length {len(text)} chars")
-    
+        # logger.info(f"Removed intro section from text of length {len(text)} chars")
+
     # 4. Find positions of abstract and keywords and keep them
     abstract_start = -1
     keywords_pos = -1
-        
+
     # Find start of abstract
     for pattern in abstract_patterns:
         match = re.search(pattern, text, re.IGNORECASE)
         if match:
-            abstract_start = match.start()        
+            abstract_start = match.start()
             if abstract_start >= 0:
                 if abstract_start < MAX_ABSTRACT_CHARS:  # Only consider matches near start of text
                     abstract_start = match.end()
                     break
-    
+
         # Find position of keywords
     for pattern in keyword_patterns:
         match = re.search(pattern, text, re.IGNORECASE)
         if match:
             keywords_pos = match.start()
             break
-    
+
     # Extract abstract based on relative positions
     abstract_text = ""
     if abstract_start >= 0:
         # Abstract found
-        abstract_text = text[abstract_start:abstract_start+MAX_ABSTRACT_CHARS].strip()
+        abstract_text = text[abstract_start:abstract_start + MAX_ABSTRACT_CHARS].strip()
     else:
         # No abstract found
         if keywords_pos >= 1500:
@@ -148,7 +150,7 @@ def extract_sections(text: str) -> str:
             abstract_text = text[keywords_pos:keywords_pos + MAX_ABSTRACT_CHARS].strip()
         else:
             # No keywords found, keep the first 2000 chars
-            logger.warning("No keywords or abstract found - keeping the first 2000 chars")
+            print("No keywords or abstract found - keeping the first 2000 chars")
             abstract_text = text[:MAX_ABSTRACT_CHARS].strip()
 
     # Clean up abstract text while preserving paragraphs
@@ -167,12 +169,11 @@ def extract_sections(text: str) -> str:
             abstract_text = abstract_text[:MAX_ABSTRACT_CHARS] + "..."
         abstract_text = "ABSTRACT SECTION:\n" + abstract_text
 
-
     if len(methods_text) > 0:
         # combine methods_text and abstract_text
         full_text = abstract_text + "\n\n" + methods_text
     else:
-        logger.warning("No methods section found")
+        # logger.warning("No methods section found")
         # get position of end of abstract_text in text
         end_of_abstract = text.find(abstract_text)
         full_text = abstract_text + "\n\n" + text[end_of_abstract:end_of_abstract + MAX_TOTAL_CHARS]
@@ -182,58 +183,57 @@ def extract_sections(text: str) -> str:
     full_text = re.sub(r'\s+', ' ', full_text)  # Normalize whitespace
     full_text = full_text.replace('\r', ' ')  # Replace carriage returns
     full_text = re.sub(r'(?<=\w)\s+(?=\w)', ' ', full_text)  # Ensure single space between words
-    
 
     # Calculate remaining space for full text
     used_chars = len(full_text)
     remaining_chars = MAX_TOTAL_CHARS - used_chars
-    
-    logger.info(f"Space used by abstract and markers: {used_chars} chars")
-    logger.info(f"Remaining space for full text: {remaining_chars} chars")
-    
+
+    print(f"Space used by abstract and markers: {used_chars} chars")
+    print(f"Remaining space for full text: {remaining_chars} chars")
+
     gpt_text = full_text
     # Truncate full text if needed
     if len(gpt_text) > MAX_TOTAL_CHARS:
-        logger.info(f"Truncating full text from {len(gpt_text)} to {MAX_TOTAL_CHARS} chars")
+        print(f"Truncating full text from {len(gpt_text)} to {MAX_TOTAL_CHARS} chars")
         truncated_text = gpt_text[:MAX_TOTAL_CHARS] + "..."
     else:
         truncated_text = gpt_text
-    
+
     gpt_text = "FULL TEXT:\n" + truncated_text
-    
+
     final_length = len(gpt_text)
-    logger.info(f"Final text length: {final_length} chars (limit: {MAX_TOTAL_CHARS})")
-    
+    print(f"Final text length: {final_length} chars (limit: {MAX_TOTAL_CHARS})")
+
     if final_length > MAX_TOTAL_CHARS:
-        logger.warning(f"Warning: Final text exceeds limit by {final_length - MAX_TOTAL_CHARS} chars")
-    
+        print(f"Warning: Final text exceeds limit by {final_length - MAX_TOTAL_CHARS} chars")
+
     return gpt_text, full_text
+
 
 async def analyze_paper(pdf_path: str, client) -> Dict[str, Any]:
     """Analyze a single paper"""
     try:
-        logger.info(f"Starting analysis of: {os.path.basename(pdf_path)}")
-        
+
         # Read PDF
         reader = PdfReader(pdf_path)
-        logger.info(f"Successfully opened PDF with {len(reader.pages)} pages")
-        
+
         # Check first page for ResearchGate or JSTOR or BioOne
         first_page_text = reader.pages[0].extract_text().lower()
         # Clean up text for detection
         first_page_text = re.sub(r'\s+', '', first_page_text)  # Remove all whitespace
         skip_first_page = False
-        
+
         # Define patterns to match
         researchgate_patterns = ['researchgate.net', 'researchgatenet', 'researchgate']
-        jstor_patterns = ['jstor.org', 'jstororg', 'jstor', 'bioone.org', 'biooneorg', 'ePublications', 'e-publications']
-        
+        jstor_patterns = ['jstor.org', 'jstororg', 'jstor', 'bioone.org', 'biooneorg', 'ePublications',
+                          'e-publications']
+
         # Check for any pattern match
         if any(pattern in first_page_text for pattern in researchgate_patterns) or \
-           any(pattern in first_page_text for pattern in jstor_patterns):
-            logger.info("Detected ResearchGate/JSTOR cover page - skipping first page")
+                any(pattern in first_page_text for pattern in jstor_patterns):
+            # logger.info("Detected ResearchGate/JSTOR cover page - skipping first page")
             skip_first_page = True
-        
+
         # Extract text from all pages
         full_text = ""
         for i, page in enumerate(reader.pages):
@@ -243,25 +243,25 @@ async def analyze_paper(pdf_path: str, client) -> Dict[str, Any]:
                     continue
                 page_text = page.extract_text() + "\n"
                 full_text += page_text
-                # logger.info(f"Page {i+1} text length: {len(page_text)} chars")    
+                # logger.info(f"Page {i+1} text length: {len(page_text)} chars")
             except Exception as e:
-                logger.error(f"Error extracting text from page: {str(e)}")
+                # logger.error(f"Error extracting text from page: {str(e)}")
                 continue
-        
+
         logger.info(f"Full text length before cleaning: {len(full_text)} chars")
-        
+
         if not full_text.strip():
             logger.error("No text extracted from PDF")
             return None
-            
+
         # Extract relevant sections
         relevant_text, regex_text = extract_sections(full_text)
         logger.info("Successfully extracted relevant sections")
-        
+
         # Clea n text
         clean_gpt_text = relevant_text.replace('"', "'").replace('\\', '/').replace('\r', ' ')
         clean_regex_text = full_text.replace('"', "'").replace('\\', '/').replace('\r', ' ')
-        
+
         logger.info(f"Clean gpt text length: {len(clean_gpt_text)} chars")
         logger.info(f"Clean regex text length: {len(clean_regex_text)} chars")
 
@@ -269,123 +269,56 @@ async def analyze_paper(pdf_path: str, client) -> Dict[str, Any]:
             # Get analysis results
             results = await get_combined_analysis(clean_gpt_text, clean_regex_text, client)
             logger.info("Successfully completed main analysis")
-            
+
             # Add metadata
             results['filename'] = os.path.basename(pdf_path)
             results['num_pages'] = len(reader.pages)
             results['file_size'] = os.path.getsize(pdf_path) / 1024
-            
+
             logger.info(f"Successfully analyzed {os.path.basename(pdf_path)}")
             return results
-            
+
         except Exception as e:
             logger.error(f"Error in API analysis: {str(e)}")
             return None
-            
+
     except Exception as e:
         logger.error(f"Error processing {pdf_path}: {str(e)}")
         return None
 
-async def process_papers(pdf_files: List[str]) -> List[Dict[str, Any]]:
-    """Process multiple papers in parallel"""
-    client = init_client()
-    results = []
-    
-    # Use ROOT_PATH for absolute path
-    output_file = os.path.join(ROOT_PATH, "output", "gpt_analysis_results.csv")
-    
-    # Process papers in parallel with a limit
-    chunk_size = 3  # Process 3 papers at a time
-    total = len(pdf_files)
-    
-    logger.info(f"Starting analysis of {total} papers in chunks of {chunk_size}")
-    
-    for i in range(0, total, chunk_size):
-        chunk = pdf_files[i:i + chunk_size]
-        logger.info(f"\nProcessing papers {i+1}-{min(i+chunk_size, total)} of {total}")
-        
-        # Process chunk in parallel
-        try:
-            chunk_results = await asyncio.gather(
-                *[analyze_paper(pdf, client) for pdf in chunk],
-                return_exceptions=True
-            )
-            
-            # Filter out errors and None results
-            valid_results = [
-                r for r in chunk_results 
-                if r is not None and not isinstance(r, Exception)
-            ]
-            results.extend(valid_results)
-            
-            # Save results after each chunk
-            logger.info(f"Saving results for chunk {i+1}-{min(i+chunk_size, total)}")
-            save_results(results, output_file)  # This will overwrite/update the file
-            
-            logger.info(f"Successfully processed {len(valid_results)}/{len(chunk)} papers in current chunk")
-            
-        except Exception as e:
-            logger.error(f"Error processing chunk: {str(e)}")
-    
-    logger.info(f"Completed analysis of {len(results)}/{total} papers")
-    return results
 
-async def main(test_mode: bool = False):
-    """Main execution function"""
-    try:
-        logger.info("Starting analysis pipeline")
-        
-        # Create required directories with absolute paths
-        os.makedirs(os.path.join(ROOT_PATH, "data/pdfs"), exist_ok=True)
-        os.makedirs(os.path.join(ROOT_PATH, "output"), exist_ok=True)
-        os.makedirs(os.path.join(ROOT_PATH, "code_gpt", "logs"), exist_ok=True)
-        
-        # Directory containing PDF files
-        pdf_dir = os.path.join(ROOT_PATH, "data/pdfs")
-        
-        # Get list of PDF files
-        pdf_files = [
-            os.path.join(pdf_dir, f) 
-            for f in os.listdir(pdf_dir) 
-            if f.endswith('.pdf')
-        ]
-        
-        if test_mode:
-            if len(pdf_files) >= 3:
-                logger.info("TEST MODE: Processing first 3 PDFs")
-                pdf_files = pdf_files[:10]  # Take first 10 files
-            elif pdf_files:
-                logger.info(f"TEST MODE: Processing all {len(pdf_files)} available PDFs")
-            else:
-                logger.error("No PDF files found in data/pdfs/")
-                return
-        
-        # Process papers
-        results = await process_papers(pdf_files)
-        
-        # Print summaries
-        logger.info("\nAnalysis Summary:")
-        print_summaries(results)
-        
-        logger.info("Analysis pipeline completed")
-    finally:
-        # Clean up cache
-        from utils.ai_client import cache_manager
-        # Always clear all cache files
-        cache_manager.clear_cache()
-        logger.info("Cache files cleared")
+pdfpath = r'/Users/wenxinyang/Desktop/GitHub/3dhabitat_litreview/data/pdfs/J5942.pdf'
 
-if __name__ == "__main__":
-    # Get mode from command line argument or environment variable
-    import sys
-    test_mode = len(sys.argv) > 1 and sys.argv[1] == '--test'
-    # test_mode = True
-    
-    # Log which mode we're running in
-    if test_mode:
-        logger.info("Running in TEST mode")
-    else:
-        logger.info("Running in NORMAL mode")
-        print(ROOT_PATH)
-        
-    asyncio.run(main(test_mode)) 
+
+
+METRIC_PATTERNS = {
+    "cover_density": r'\b(basal\s+area|canopy[\s\n]*cover|tree\s+density|stem\s+density|stand\s+density|crown\s+cover|' +
+                    r'vegetation\s+volume|crown\s+diameter|gap[s]?\b|openness|' +
+                    r'shrub\s+(?:density|cover)|understor[ey]\s+cover)',
+    "height": r'\b(canopy\s+height|tree\s+height|vegetation\s+height|height\s+profile|height\s+distribution)',
+    "horizontal_heterogeneity": r'\b(gap\s+distribution|spatial\s+pattern|horizontal\s+structure|canopy\s+gaps|spatial\s+heterogeneity)',
+    "vertical_heterogeneity": r'\b(vertical\s+structure|stratification|layering|vertical\s+profile|vertical\s+distribution)',
+    "landscape": r'\b(patch\s+size|fragmentation|connectivity|landscape\s+heterogeneity|landscape\s+pattern|landscape\s+metric)'
+}
+
+
+def detect_metrics(text: str) -> Tuple[Dict[str, bool], Dict[str, str]]:
+    """
+    Detect structure metrics using regex patterns
+    Returns: (detection_results, evidence_snippets)
+    """
+
+    results = {}
+    evidence = {}
+
+    for metric, pattern in METRIC_PATTERNS.items():
+        match = re.search(pattern, text, re.I)
+        results[metric] = bool(match)
+        if match:
+            # Just use the entire methods section as evidence
+            evidence[metric] = text.strip()
+
+    return results, evidence
+
+regex_results, evidence = detect_metrics(full_text)
+regex_results

@@ -30,13 +30,30 @@ def save_results(results: List[Dict[str, Any]], output_file: str) -> None:
         flat_dict['File_Size_KB'] = result.get('file_size', 0)
         
         # Paper categories with clearer names
+        cats = result.get('paper_categories', {})
+        for analysis_type, prefix in [
+            ('structure_analysis', 'Structure_'),
+            ('animal_biodiversity', 'Animal_')
+        ]:
+            if analysis_type in cats:
+                for key, value in cats[analysis_type].items():
+                    flat_dict[f'{prefix}{key}'] = value.get('present', False)
+                    flat_dict[f'{prefix}{key}_Confidence'] = value.get('confidence', 0.0)
+        
+        # Relationship categories with clearer names
+        for rel_type in ['structure_animal_correlation',
+                        'effect_structure_on_animals',
+                        'effect_animals_on_structure']:
+            if rel_type in cats:
+                clean_name = rel_type.replace('_', ' ').title()
+                flat_dict[f'Relationship_{clean_name}'] = cats[rel_type].get('present', False)
+                flat_dict[f'Relationship_{clean_name}_Confidence'] = cats[rel_type].get('confidence', 0.0)
         
         # Study site with clearer names
         site = result.get('study_site', {})
         flat_dict['Study_Country'] = site.get('location', {}).get('country', '')
         flat_dict['Habitat_Types'] = ', '.join(site.get('location', {}).get('habitat_type', []))
-        flat_dict['Spatial_Extent'] = site.get('spatial_extent', {}).get('spatial_extent', '')
-        flat_dict['Vertical_Layer'] = site.get('vertical_layer', {}).get('vertical_layer', '')
+        flat_dict['Spatial_Scale'] = site.get('spatial_scale', {}).get('scale_category', '')
         
         # Structure methods with both detections
         struct = result.get('structure_details', {})
@@ -53,7 +70,7 @@ def save_results(results: List[Dict[str, Any]], output_file: str) -> None:
         
         # Structure metrics with clearer names
         metrics = struct.get('metrics', {})
-        for metric in ["cover_density", "height", "horizontal_heterogeneity", "vertical_heterogeneity", "landscape", "other_structure"]:
+        for metric in ["cover_density", "height", "horizontal_heterogeneity", "vertical_heterogeneity", "landscape"]:
             clean_name = metric.replace('_', ' ').title()
             details = metrics.get(metric, {})
             
@@ -108,6 +125,18 @@ def save_results(results: List[Dict[str, Any]], output_file: str) -> None:
             else:
                 flat_dict[f'Animal_{clean_name}_Metrics'] = str(metrics)
         
+        # Add relationship details
+        rel_details = result.get('relationship_details', {})
+        if 'mechanism_testing' in rel_details:
+            mech = rel_details['mechanism_testing']
+            flat_dict['Mechanism_Testing_Present'] = mech.get('present', False)
+            flat_dict['Mechanism_Testing_Methods'] = ', '.join(mech.get('methods', []))
+            flat_dict['Mechanisms_Tested'] = ', '.join(mech.get('mechanisms_tested', []))
+            
+            # Evidence types (removed process_based)
+            evidence = mech.get('evidence_type', {})
+            for ev_type in ['experimental', 'natural_experiment', 'statistical']:
+                flat_dict[f'Evidence_{ev_type.replace("_", " ").title()}'] = evidence.get(ev_type, False)
         
         flattened_results.append(flat_dict)
     
@@ -127,7 +156,20 @@ def save_results(results: List[Dict[str, Any]], output_file: str) -> None:
         'File_Name', 'Number_of_Pages', 'File_Size_KB',
         
         # Study site
-        'Study_Country', 'Habitat_Types', 'Spatial_Extent', 'Vertical_Layer'
+        'Study_Country', 'Habitat_Types', 'Spatial_Scale',
+        
+        # Structure analysis
+        'Structure_vertical_3d', 'Structure_vertical_3d_Confidence',
+        'Structure_horizontal_2d', 'Structure_horizontal_2d_Confidence',
+        
+        # Animal biodiversity
+        'Animal_vertical_3d', 'Animal_vertical_3d_Confidence',
+        'Animal_horizontal_2d', 'Animal_horizontal_2d_Confidence',
+        
+        # Relationships
+        'Relationship_Structure Animal Correlation', 'Relationship_Structure Animal Correlation_Confidence',
+        'Relationship_Effect Structure On Animals', 'Relationship_Effect Structure On Animals_Confidence',
+        'Relationship_Effect Animals On Structure', 'Relationship_Effect Animals On Structure_Confidence',
     ]
     
     # Add method columns
@@ -146,7 +188,7 @@ def save_results(results: List[Dict[str, Any]], output_file: str) -> None:
     
     # Add metric columns
     metric_cols = []
-    for metric in ["cover_density", "height", "horizontal_heterogeneity", "vertical_heterogeneity", "landscape", "other_structure"]:
+    for metric in ["cover_density", "height", "horizontal_heterogeneity", "vertical_heterogeneity", "landscape"]:
         clean_name = metric.replace('_', ' ').title()
         metric_cols.extend([
             f'Metric_{clean_name}_Present',
@@ -184,6 +226,17 @@ def save_results(results: List[Dict[str, Any]], output_file: str) -> None:
             if col not in df.columns:
                 df[col] = False if col.endswith('_Present') or col.endswith('_Regex') else ''
     
+    # Add relationship details
+    relationship_cols = [
+        'Mechanism_Testing_Present', 'Mechanism_Testing_Methods', 'Mechanisms_Tested',
+        'Evidence_Experimental', 'Evidence_Natural_Experiment', 'Evidence_Statistical'
+    ]
+    column_order.extend(relationship_cols)
+    # Ensure columns exist
+    for col in relationship_cols:
+        if col not in df.columns:
+            df[col] = False if col.endswith('_Present') or col.startswith('Evidence_') else ''
+    
     # Ensure all columns exist before reordering
     for col in column_order:
         if col not in df.columns:
@@ -219,9 +272,13 @@ def print_summaries(results: List[Dict[str, Any]]) -> None:
     
     print(f"\nProcessed {len(results)} papers")
     
-    # Study Site Summary
-    print("\nStudy Site Distribution:")
+    # Spatial Scale Summary
+    print("\nSpatial Scale Distribution:")
     print("-------------------------")
+    if 'Spatial_Scale' in df.columns:
+        scale_counts = df['Spatial_Scale'].value_counts()
+        print(scale_counts)
+    
     # Location Summary
     print("\nStudy Locations:")
     print("---------------")
@@ -317,6 +374,16 @@ def print_summaries(results: List[Dict[str, Any]]) -> None:
                     method_counts = pd.Series(all_methods).value_counts()
                     print("\nMethods used:")
                     print("\n".join(f"- {m}: {c} papers" for m, c in method_counts.head().items()))
+            
+            # Show evidence types
+            print("\nEvidence types:")
+            evidence_types = {
+                "Experimental": df['Evidence_Experimental'].sum() if 'Evidence_Experimental' in df.columns else 0,
+                "Natural Experiment": df['Evidence_Natural_Experiment'].sum() if 'Evidence_Natural_Experiment' in df.columns else 0,
+                "Statistical": df['Evidence_Statistical'].sum() if 'Evidence_Statistical' in df.columns else 0
+            }
+            for ev_type, count in evidence_types.items():
+                print(f"- {ev_type}: {count} papers")
 
     # Method Detection Comparison Summary
     print("\nMethod Detection Comparison:")
@@ -352,7 +419,10 @@ def print_summaries(results: List[Dict[str, Any]]) -> None:
     print("\nAnimal Research Tasks:")
     print("------------------")
     task_types = [
-        'Major_Tasks', 'Acoustic_Monitoring', 'Vertical_Movement'
+        'Species_Richness', 'Abundance', 'Occurrence_Distribution',
+        'Community_Composition', 'Functional_Diversity', 'Beta_Diversity',
+        'Stratification_Niche', 'Movement', 'Behavior', 'Habitat_Preference',
+        'Habitat_Suitability', 'Survival_Mortality', 'Acoustic_Characteristics'
     ]
     
     for task in task_types:

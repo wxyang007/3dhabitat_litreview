@@ -196,8 +196,10 @@ df_bio_info <- read_excel('data/lit_coding_241230.xlsx', sheet='Bio-info')
 # wide to long reshape
 df_bio_stats_lng <- melt(setDT(df_bio_stats), id.vars=c('Taxon'), variable.name='Task')
 
-tsk_lv <- c('species functional trait', 'species abundance and density', 'species distribution and occupancy', 'species prevalence', 'species movement', 'species use of space', 'species behaviors', 'speices life history', 'species habitat preference', 'stratification and niche segregation', 'community similarity', 'community composition and turnover', 'species richness and diversity',
-            'functional richness and diversity', 'acoustic characteristics', 'habitat suitability')
+tsk_lv <- c('movement', 'use of space', 'behaviors', 'functional trait', 'distribution and occupancy','life history', 'habitat preference', 'prevalence', 
+            'richness and diversity', 'stratification and niche segregation', 'abundance and density', 'community composition and turnover', 'functional richness and diversity', 'community similarity',
+             'acoustic characteristics', 'habitat suitability')
+
 
 df_bio_stats_fn <- merge(df_bio_stats_lng, df_bio_info, by.x=c('Task'), by.y=c('Theme'), all.x=TRUE) %>% 
   mutate(Taxon = factor(Taxon, levels=c('Plants', 'Invertebrates', 'Reptiles', 'Amphibians', 'Other mammals', 'Bats','Bird')),
@@ -205,7 +207,7 @@ df_bio_stats_fn <- merge(df_bio_stats_lng, df_bio_info, by.x=c('Task'), by.y=c('
          )
 
 labels <- levels(df_bio_stats_fn$Taxon)
-li_brks <- c(1,2,3,4,5,6,7,8,9,11,12,13,14,15,17,18)
+li_brks <- c(1,2,3,4,5,6,7,8,10,11,12,13,14,15,17,18)
 df_bio_stats_fn <- df_bio_stats_fn %>% arrange(factor(Task, levels=tsk_lv))
 df_bio_stats_fn$aux <- rep(li_brks, times = table(df_bio_stats_fn$Task))
 

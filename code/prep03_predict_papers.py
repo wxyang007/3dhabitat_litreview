@@ -6,8 +6,8 @@ import time
 
 def predict_papers(excel_file, model_name, batch_size=20):
     # Initialize OpenAI client with API key
-    client = OpenAI(api_key='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')
-    
+    client = OpenAI(api_key='YOUR-KEY')
+
     while True:  # Keep running until all papers are processed
         # Read the Excel file
         df = pd.read_excel(excel_file)

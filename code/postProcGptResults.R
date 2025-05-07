@@ -13,7 +13,8 @@ evidence_names <- df_col_name[endsWith(df_col_name, "_Evidence")]
 gpt <- gpt %>% select(!any_of(regex_names)) %>% select(!any_of(evidence_names))
 gpt <- gpt %>% mutate(
   ID = gsub(".pdf", "", gpt$File_Name),
-  ID = substr(ID, 1, 5))
+  ID = substr(ID, 1, 5),
+  ID = sub(" .*", "", ID))
 
 
 lit_info <- read_excel('lit/AllJan25/merged_lit_2501_withabstract.xlsx') %>% select('Title', 'ID', 'Publication Year', 'Abstract')
@@ -58,20 +59,65 @@ tmp <- kept4 %>% filter(grepl("connectivity", Title))
 colnames(kept4)
 
 # remove J0326 for studying stored maize depth
-# manually removed J1528, one J5677 because of duplication
+# manually removed J1528, J5677, J1052, J2927 because of duplication
 # manually removed J1967 because it doesn't measure habitat structure or animals in 3d
 # manually removed J1993 because it is about classifying species in audio recordings
 # manually removed J3251 because it is not using vertical layers or other 3d stuff
-# manually removed J3313, J3431, J4605, J5848, J5678 because they are not using 3d stuff
+# manually removed J3313, J3431, J4605, J5848, J5678, 488, J0359, J1071, J4743, J4111, J5978, J0717, J0568, J2528 because they are not using 3d stuff
 # manually removed J3651 because it is a review
 # manually removed J3954 because it is a commentary
 # manually removed J4206 because it is about faunal communities (no animals)
 # manually removed J4409 because it is a recommendation, no analysis
-# manually removed J4570 because it is just using elevation as 3d
+# manually removed J4570, J3736 because they are just using elevation as 3d
 # manually removed J4701 because it is a meta analysis and does not measure 3d explicitly
 # manually removed J4978 because it is about dwelling underground
 # manually removed J5500 because it is not that 3d
-# manually removed 016 because it is not about animals
+# manually removed 016, 295 because they are not about animals
+# manually removed J0326 because it is about maize depth
+
+# not removed but hallucinating...
+# J2067
 
 
+# ============ merge field sampling evidence with codebook ==========
+codebook <- read_excel('output/gpt_results_kept4_codebook.xlsx')
 
+df_year <- codebook[!is.na(codebook$`Publication Year`),]
+hist(df_year$`Publication Year`)
+df_year$five_year <- round(df_year/5)
+
+df0 <- read_excel('data/lit_coding_0828.xlsx')
+colnames(df0) <- df0[1,]
+df0 <- df0[-c(1), ]
+
+df <- df0 %>% select(ID, `Publication Year`) %>% mutate(
+  nchars = nchar(ID),
+  ID = ifelse(nchars==1, paste0("00", ID), ifelse(nchars==2, paste0("0", ID), ID))
+)
+colnames(df) <- c('ID', 'pub year')
+
+codebook1 <- merge(codebook, df, by='ID', all.x=TRUE)
+codebook1 <- codebook1 %>% mutate(
+  year = ifelse(!is.na(`Publication Year`), `Publication Year`, ifelse(
+    !is.na(`pub year`),  `pub year`, 0
+  )),
+  `if3dStruc` = ifelse(is.na(`if3dStruc`), 0, `if3dStruc`)
+)
+
+codebook1$year <- as.numeric(codebook1$year)
+
+hist(codebook1$year)
+
+unique(codebook1$if3dStruc)
+
+df_3dstruc <- codebook1[codebook1$if3dStruc==1,]
+
+hist(df_3dstruc$year)
+
+df_3dstruc$year_5 <- 5*ceiling(df_3dstruc$year/5)
+hist(df_3dstruc$year_5)
+
+a <- as.data.frame(table(df_3dstruc$year))
+
+ggplot(a, aes(x=Var1, y=Freq))+
+  geom_point()

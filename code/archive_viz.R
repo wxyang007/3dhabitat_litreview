@@ -33,6 +33,8 @@ ggplot(data=df_yr, aes(x=Year, y=`Number of Papers`, group=1))+
   theme_ipsum()
 
 
+hist(as.numeric(df$`Publication Year`))
+
 # ===== locations ======
 # pass
 clean <-function(col){

@@ -15,7 +15,7 @@ tab1 <- tab1[-1,] %>% select("ID", "Title") %>%
 tab2 <- read_excel('lit/Boosted lit search/Jan2025/newfiles5_train.xlsx') %>% 
   filter(ifKeep==1) %>% 
   select("id", "Article Title", "Document Type") %>%
-  rename(ID=id, Title=`Article Title`) %>%
+  dplyr::rename(ID=id, Title=`Article Title`) %>%
   mutate(source='search2train',  # Jan search
          ID=sprintf("J%04d", ID)) 
 colnames(tab2)
@@ -23,12 +23,12 @@ colnames(tab2)
 # this is the pred set
 tab3_pred <- read_excel('lit/Boosted lit search/Jan2025/newfiles5_pred_predictions_unq.xlsx')
 tab3_raw <- read_excel('lit/Boosted lit search/Jan2025/newfiles5_pred.xlsx') %>% 
-  select("id", "Article Title", "Document Type") %>%
-  rename(Title=`Article Title`)
+  select("id", "Article Title", "Document Type") %>% 
+  dplyr::rename(Title=`Article Title`)
 
 tab3 <- merge(tab3_pred, tab3_raw, by="Title") %>%
   filter(Prediction=='keep') %>%
-  rename(ID=id) %>%
+  dplyr::rename(ID=id) %>%
   mutate(source='search2pred', # Jan search
          ID=sprintf("J%04d", ID)) %>%
   select(-Prediction)

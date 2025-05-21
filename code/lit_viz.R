@@ -163,34 +163,14 @@ li_map_country <- unique(map_loc$NAME_EN)
 
 setdiff(li_lit_country, li_map_country)
 
-map_pal <- c("white", "#EDEF5C","#97D267","#47B679","#009780","#00767A","#255668")
-#'#d3d3d3',
-
-# ============== X custom breaks ===============
-
-#freq_map <- tm_shape(map_loc) +
-#  tm_fill("Count", 
-#          fill.legend=tm_legend(title='Frequency of study \nareas in each country ', na.show=FALSE, title.fontfamily = 'Times', 
-#                                # frame=FALSE,
-#                                title.fontface = 2,
-#                                text.fontfamily = 'Times', 
-#                                item_text.margin= 3,
-#                                labels=c('0', '1 to 4', '5 to 9', '10 to 49', '50 to 110', '326')
-#                                ),
-#          fill.scale=tm_scale_intervals(values=map_pal, breaks=c(0,1,5,10,50,110,400), label.na=FALSE)
-#          )+
-#  tm_borders(col='black', lwd=0.5)+
-  # tm_shape(admin)+
-#  tm_layout(frame=FALSE)
-
-# tmap_save(tm = freq_map, filename = "viz/country_frequency_map_2025.png")
+map_pal <- c("white","#EDEF5C","#97D267","#47B679","#009780","#00767A")
 
 # ============== equal breaks ===============
+map_loc_studies <- map_loc[map_loc$Count >= 0,]
+
 # get break point values for quantile
 non_zero_counts <- map_loc_studies$Count[map_loc_studies$Count > 0]
 quantile(non_zero_counts, probs = seq(0, 1, length.out = 8))
-
-map_loc_studies <- map_loc[map_loc$Count >= 0,]
 
 freq_map <- tm_shape(map_loc_studies) + 
   tm_fill("Count", 
@@ -319,31 +299,50 @@ ggsave(filename = "viz/bivar_3d_map_eq_few.png",
 
 
 # =========== proportion map ===========
+# Modify the data preparation to set 0 values to NA
 map_loc_prop <- map_loc_bivar %>% mutate(
-  prop = ifelse(`3dStruc_cnt`*`3dAnim_cnt`>0, `3dStruc_cnt`/`3dAnim_cnt`, 0)
-) %>% filter(prop>0)
+  prop = ifelse(`3dStruc_cnt`*`3dAnim_cnt`>0, `3dStruc_cnt`/`3dAnim_cnt`, NA)
+)
 
 prop_map <- tm_shape(map_loc_prop) +
-  tm_fill("prop", 
-          fill.legend = tm_legend(
-            title = 'Studies on 3D structure \nvs 3D biodiversity \n(Ratio, Jenks)',
-            na.show = FALSE,
-            title.fontfamily = 'Times',
-            title.fontface = 2,
-            text.fontfamily = 'Times',
-            item_text.margin = 3
-          ),
-          fill.scale = tm_scale_intervals(values = map_pal[2:6], style = "jenks", label.na = FALSE)
+  tm_polygons(
+    fill = "prop",
+    fill.scale = tm_scale_continuous(midpoint=1,
+                                     ticks = c(0.333, 1, 3, 6),
+                                     limits = c(0.333, 6),
+                                     values = c("#1065ab",
+                                                "#1065ab",
+                                                #"#3a93c3", 
+                                                #"#40b0a7",
+                                                "#1065ab",
+                                                #"#8ec3de",
+                                                "#d1e5f0",
+                                                "#f9f9f9", 
+                                                #"#fedbc7", 
+                                                "#f6a582", 
+                                                "#d75f4c", "#b3152a"
+                                                ),
+                                     value.na = "#FFFFFF",
+                                     label.na = "NA",
+                                     labels = c("1:3", "1:1", "3:1", "6:1")
+                                     ),
+    fill.legend = tm_legend(
+      title = 'Studies on 3D structure \nvs 3D biodiversity \n(Ratio)',
+      na.show = TRUE,
+      title.fontfamily = 'Times',
+      title.fontface = 2,
+      text.fontfamily = 'Times',
+      item_text.margin = 3
+
+    )
   ) +
-  tm_borders(col = 'black', lwd = 0) +
-  # Add the admin boundaries layer for all countries
-  tm_shape(admin) +
   tm_borders(col = 'black', lwd = 0.5) +
   tm_layout(frame = FALSE)
 
+
 tmap_save(tm = prop_map, filename = "viz/country_prop3d_map_2025_default.png")
 
-# ========= Habitat types ==========
+  # ========= Habitat types ==========
 unique(df1$Habitat_Types)
 # OMG this is not clean at all! Okay let's create a new data frame to hack this
 dfhab <- df1 %>% select(c("ID", "Habitat_Types"))
@@ -541,40 +540,6 @@ df_topic_sum <- as.data.frame(table(df_topic))
 df_topic_sum <- df_topic_sum %>% filter(Freq>0)
 
 # ===========================================================================
-# ======= [version 2024] try creating a heatmap =======
-#df_no_exo <- df_topic %>% filter(Exogenous==0) %>% select(!Exogenous)
-#df_exo <- df_topic %>% filter(Exogenous==1) %>% select(!Exogenous)
-
-# x axis: hab = 1, biodiv = 1, or both = 1
-# y axis: cor + cause + aff = 0 | exo; cor = 1 the other 0 | exo; cause = 1 the other 0 | exo; aff = 1 the other 0 | exo
-
-#df_topic <- df_topic %>% mutate(
-#  xval = ifelse((Habitat==1 & Biodiversity == 1), 'Both', ifelse(
-#    Habitat==1, 'Habitat', 'Biodiversity'
-#  ))
-#)
-
-#df_topic <- df_topic %>% mutate(yval = 
-#                                  ifelse(Correlate+Cause+Affected+Exogenous==0, '00', ifelse(
-#                                    Correlate+Cause+Affected==0 & Exogenous==1, '01', ifelse(
-#                                      Correlate==1 & Cause+Affected+Exogenous==0, '40', ifelse(
-#                                        Correlate+Exogenous==2 & Cause+Affected==0, '41', ifelse(
-#                                          Cause==1 & Correlate+Affected+Exogenous==0, '50', ifelse(
-#                                            Cause+Exogenous==2 & Correlate+Affected==0, '51', ifelse(
-#                                              Affected==1 & Correlate+Cause+Exogenous==0, '60', '61'
-#                                            )
-#                                          )
-#                                        )
-#                                      )  
-#                                    ) 
-#                                  ))
-#)
-# I deleted a bunch ....
-#df_long_xy <- df_long_xy %>% mutate(
-#  ifexo = ifelse(yval %in% c('00', '40', '50', '60'), 'No exogenous', 'Exogenous')
-#)
-
-# ===========================================================================
 # ======= [version 2025] try creating a heatmap =======
 df_topic <- df_topic %>% mutate(
   xval = ifelse((if3dStruc==1 & if3dAnim == 1), 'Both', ifelse(
@@ -661,16 +626,319 @@ topic_p <- ggplot(df_long_xy, aes(xval, rel, fill=Freq_grp))+
 
 ggsave(filename='viz/topic_numbers1.png', topic_p, height=6, width=8)
 
-# [not used] test creating a venn diagram
-#venn.diagram(
-#  x = as.list(df_topic %>% select(!Exogenous)),
-#  category.names = c('Habitat', 'Biodiversity', 'Correlate', 'Cause', 'Affected'),
-  #filename = 'viz/topic_venn_diagram.png',
-  #output = TRUE
-#)
-
-
 # ===== Group 1 Habitat structure ======
 df_hab <- df1 %>% filter(if3dStruc==1) %>% 
   select(all_of(c('ID', hab_dat_cols, hab_met_cols, 'year'))) %>%
-  mutate(if_lidar=ifelse(`Method_Airborne.Lidar_GPT`
+  mutate(if_lidar=ifelse(`Method_Airborne.Lidar_GPT`==1 | `Method_Terrestrial.Lidar_GPT`==1 | `Method_Spaceborne.Lidar_GPT`==1, 1, 0),
+         hab_data=ifelse(if_lidar==1 &`Method_Field.Sampling_GPT`==0, 'LiDAR Only',
+                         ifelse(if_lidar==0 & `Method_Other.Remote.Sensing_GPT`==0 & `Method_Field.Sampling_GPT`==1, 'Field Only', ifelse(
+                           if_lidar==0 & `Method_Other.Remote.Sensing_GPT`==1 & `Method_Field.Sampling_GPT`==1, 'Field and Other RS', 
+                           ifelse(if_lidar==1&`Method_Field.Sampling_GPT`==1, 'LiDAR and Field', 'Other')))))
+
+
+df_hab <- df_hab %>% mutate(
+  hab_data=factor(hab_data, levels=c('Field Only', 'LiDAR Only', 'LiDAR and Field', 'Field and Other RS')
+))
+
+df_hab$year_5 <- 5*ceiling(df_hab$year/5)
+
+hab_data_p <- ggplot(data=df_hab)+
+  geom_histogram(aes(x=year_5, fill=hab_data),
+                 bins=10, color='white', alpha=0.9)+
+  #scale_fill_manual('Data Type', values=c(
+  #  '#f4d35e', 
+  #  '#0d3b66',
+  #  '#faf0ca',
+  #  '#ee964b'))+
+  scale_fill_manual('Data Collection Method', values=c(
+    '#2e2585', 
+    '#94cbec',
+    '#5da899',
+    '#337538'))+
+  # xlim(1970, 2030)+
+  scale_x_continuous(breaks=(round(seq(1975, 2025, by=5),1)))+
+  theme_bw()+
+  theme(axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title.y=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=0,r=10,b=0,l=0)),
+        axis.title.x=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=10, r=0, b=0, l=0)),
+        axis.text.x=element_text(family="Times", size=12, margin=margin(t=-5,r=0,b=0, l=0), hjust = -0.5),
+        axis.text.y=element_text(family='Times', size=12),
+        legend.text=element_text(family='Times', size=12),
+        legend.title=element_text(family='Times', size=18),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank()) +
+  xlab('Publication Year') +
+  ylab('Number of studies')
+  
+
+ggsave(filename='viz/habstruc_data1.png', hab_data_p, width=8, height=5)
+
+a <- df_hab[is.na(df_hab$hab_data), ]
+
+df_hab_lidar <- df_hab %>% filter(if_lidar==1)
+
+sum(df_hab$if_lidar)
+nrow(df_hab[df_hab$hab_data =="Field Only", ])
+sum(df_hab_lidar$Method_Spaceborne.Lidar_GPT)
+
+
+# ===== Group 2 Biodiversity ======
+taxa <- c('Birds', 'Bats', 'Primates', 'OtherMammals', 'Invertebrates', 'Reptiles', 'Amphibians')
+df1 <- df1 %>% mutate(
+  Birds = ifelse(grepl("birds|raptor", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
+  Bats = ifelse(grepl("bats", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
+  Primates = ifelse(grepl("primates", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
+  OtherMammals = ifelse(grepl("ungulates|ocelots|bobcats|coyotes|marsupials|rodents|other_mammals|small mammals|deer|jaguars|carnivores|lagomorphs|livestock|moose|lemurs", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
+  Invertebrates = ifelse(grepl("moth|insect|spider|arthropod|spider|orthopterans|bee|wasp|syrphids|carabids|beetles", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
+  Reptiles = ifelse(grepl("reptiles|lizards", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
+  Amphibians = ifelse(grepl("amphibians|frog|anuran", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0)
+)
+
+
+df3d2dBio <- df1 %>% select(all_of(c('ID', 'year', 'if3dAnim', taxa)))
+
+
+df3d2dbio_long <- data.frame(matrix(ncol=3, nrow=0))
+colnames(df3d2dbio_long) <- c('ID', 'Taxa', 'if3dAnim')
+
+for(i in 1:nrow(df3d2dBio)){
+  thisrow = df3d2dBio[i,]
+  thisid = thisrow$ID
+  this3d = thisrow$if3dAnim
+  for(col in taxa){
+    if(thisrow[col]==1){
+      df3d2dbio_long[nrow(df3d2dbio_long)+1, ] <- c(thisid, col, this3d)
+    }
+  }
+}
+
+df3d2dbio_long <- df3d2dbio_long %>% mutate(
+  Taxa = ifelse(Taxa=="OtherMammals", "Other Mammals", Taxa)
+)
+
+df3d2dbio_long <- df3d2dbio_long %>% mutate(
+  Taxa = factor(Taxa, levels=c("Birds", "Other Mammals", "Bats", "Primates", "Invertebrates", "Reptiles", "Amphibians")),
+  if3dAnim = ifelse(if3dAnim==1, "3D", "2D")
+)
+
+df3dbio_t <- df3d2dbio_long[df3d2dbio_long$if3dAnim=='3D',]
+nrow(df3dbio_t[df3dbio_t$Taxa=='Birds',])
+nrow(df3dbio_t[df3dbio_t$Taxa=='Other Mammals',])
+nrow(df3dbio_t[df3dbio_t$Taxa=='Bats',])
+nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Primates',])
+nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Primates' & df3d2dbio_long$if3dAnim=='3D',])
+nrow(df3dbio_t[df3dbio_t$Taxa=='Reptiles',])
+nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Amphibians',])
+nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Invertebrates',])
+nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Invertebrates' & df3d2dbio_long$if3dAnim=='3D',])
+
+
+
+taxa_p <- ggplot(data=df3d2dbio_long)+
+  geom_histogram(aes(x=Taxa, fill=if3dAnim),
+                 bins=10, color='white', alpha=0.9, stat = 'count')+
+  scale_fill_manual('Data Type', values=c(
+    #'#f4d35e', 
+    '#0d3b66',
+    #'#faf0ca',
+    '#ee964b'))+
+  # xlim(1970, 2030)+
+  # scale_x_continuous(breaks=(round(seq(1980, 2025, by=5),1)))+
+  theme_bw()+
+  theme(axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title.y=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=0,r=10,b=0,l=0)),
+        axis.title.x=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=10, r=0, b=0, l=0)),
+        axis.text.x=element_text(family="Times", size=12, margin=margin(t=-5,r=0,b=0, l=0)),
+        axis.text.y=element_text(family='Times', size=12),
+        legend.text=element_text(family='Times', size=12),
+        legend.title=element_text(family='Times', size=18),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank()) +
+  xlab('Taxa')+
+  ylab('Number of studies')
+
+
+ggsave(filename='viz/taxa.png', taxa_p, height=5, width=10)
+
+
+df_bio <- df1 %>% filter(if3dAnim==1) %>% select(all_of(c('ID','Animal_Taxa_Studied','Animal_Sampling_Methods', 'Animal_Major.Tasks_Metrics', 'Animal_Acoustic.Monitoring_Present', 'Animal_Vertical.Movement_Present', 'year'))) %>% mutate_if(is.numeric, ~replace_na(., 0))
+
+
+# ================ 3D taxa by continent =============
+# create a histogram of taxa by continent
+df3dbio_long <- df3d2dbio_long[df3d2dbio_long$if3dAnim=='3D',]
+
+df3dBio_loc <- merge(df3dbio_long, loc[c('ID', 'Study_Country')], by=c('ID'))
+df3dBio_loc$if3dAnim <- NULL
+df3dBio_loc$Taxa <- as.character(df3dBio_loc$Taxa)
+
+df3dBio_loc_long <- data.frame(matrix(ncol=ncol(df3dBio_loc), nrow=0))
+colnames(df3dBio_loc_long) <- colnames(df3dBio_loc)
+
+for(i in 1:nrow(df3dBio_loc)){
+  thisrow <- df3dBio_loc[i,]
+  countries <- strsplit(thisrow$Study_Country, ";")[[1]]
+  if(length(countries)==1){
+    df3dBio_loc_long[nrow(df3dBio_loc_long)+1, ] <- thisrow
+  } else{
+    for(j in 1:length(countries)){
+      thisrow_j <- thisrow
+      thisrow_j$Study_Country <- countries[j]
+      df3dBio_loc_long[nrow(df3dBio_loc_long)+1, ] <- thisrow_j
+    }
+  }
+}
+
+df3dBio_cont <- merge(df3dBio_loc_long, continent_info, by.x='Study_Country', by.y='NAME_EN', all.x=TRUE)
+df3dBio_cont <- df3dBio_cont[!duplicated(df3dBio_cont),]
+df3dBio_cont <- df3dBio_cont[df3dBio_cont$CONTINENT!="Seven seas (open ocean)",]
+df3dBio_cont <- df3dBio_cont[!is.na(df3dBio_cont$CONTINENT),]
+df3dBio_cont <- df3dBio_cont %>%
+  mutate(CONTINENT = factor(CONTINENT, levels=c('Oceania', 'Africa', 'Asia', 'South America','Europe', 'North America')))
+
+bio_cont_p <- ggplot(data=df3dBio_cont)+
+  geom_histogram(aes(x=CONTINENT, fill=Taxa), stat='count', color='white', alpha=0.9)+
+  #scale_fill_manual(values=c('red', 'green', 'blue'))+
+  scale_fill_manual('Taxa', values=c(
+    '#2e2585',
+    '#337538',
+    '#5da899',
+    '#94cbec',
+    '#7e2854',
+    '#c26977',
+    '#dccd7d'))+
+  # xlim(1970, 2030)+
+  #scale_x_continuous(breaks=(round(seq(1975, 2025, by=5),1)))+
+  theme_bw()+
+  theme(axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title.y=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=0,r=10,b=0,l=0)),
+        axis.title.x=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=0, r=0, b=0, l=0)),
+        axis.text.x=element_text(family="Times", size=15, margin=margin(t=0,r=0,b=0, l=0), angle=30),
+        axis.text.y=element_text(family='Times', size=12),
+        legend.text=element_text(family='Times', size=12),
+        legend.title=element_text(family='Times', size=18),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank()) +
+  xlab('Continent') +
+  ylab('Number of Studies on 3D Biodiversity')
+
+bio_cont_p
+ggsave(filename='viz/hist_3dbio_continent.png', bio_cont_p, width=8, height=6)
+
+# [not used] try creating a wordcloud on research tasks
+#library(wordcloud)
+#wordcloud(df1$Animal_Major.Tasks_Metrics)
+
+#library(tm)
+#library(SnowballC)
+
+#dtm <- TermDocumentMatrix(df1$Animal_Major.Tasks_Metrics)
+#m <- as.matrix(dtm)
+#v <- sort(rowSums(m),decreasing=TRUE)
+#d <- data.frame(word = names(v),freq=v)
+#head(d, 10)
+
+# ===========================================================================
+# ======= [version 2024] biodiversity =======
+unique(df_bio$Animal_Taxa_Studied)
+unique(df1$Animal_Taxa_Studied)
+
+hist(df_bio$`year`)
+sum(df_bio$`OtherMammals`)
+sum(df_bio$Bats)
+sum(df_bio$Birds)
+sum(df_bio$Reptiles)
+sum(df_bio$Amphibians)
+sum(df_bio$Invertebrates)
+sum(df_bio$Primates)
+
+df_bio_bird <- df_bio %>% filter(Birds==1) %>% adorn_totals('row')
+df_bio_bats <- df_bio %>% filter(Bats==1) %>% adorn_totals('row')
+df_bio_inv <- df_bio %>% filter(Invertebrates==1) %>% adorn_totals('row')
+df_bio_rep <- df_bio %>% filter(Reptiles==1) %>% adorn_totals('row')
+df_bio_amp <- df_bio %>% filter(Amphibians==1) %>% adorn_totals('row')
+df_bio_other_m <- df_bio %>% filter(OtherMammals==1) %>% adorn_totals('row')
+df_bio_prmts <- df_bio %>% filter(Primates==1) %>% adorn_totals('row')
+# read in biodiversity data
+df_bio_stats <- read_excel('data/lit_coding_241230.xlsx', sheet='Biodiversity')
+df_bio_info <- read_excel('data/lit_coding_241230.xlsx', sheet='Bio-info')
+# wide to long reshape
+df_bio_stats_lng <- melt(setDT(df_bio_stats), id.vars=c('Taxon'), variable.name='Task')
+
+tsk_lv <- c('movement', 'use of space', 'behaviors', 'functional trait', 'distribution and occupancy','life history', 'habitat preference', 'prevalence', 
+            'richness and diversity', 'stratification and niche segregation', 'abundance and density', 'community composition and turnover', 'functional richness and diversity', 'community similarity',
+             'acoustic characteristics', 'habitat suitability')
+
+
+df_bio_stats_fn <- merge(df_bio_stats_lng, df_bio_info, by.x=c('Task'), by.y=c('Theme'), all.x=TRUE) %>% 
+  mutate(Taxon = factor(Taxon, levels=c('Plants', 'Invertebrates', 'Reptiles', 'Amphibians', 'Other mammals', 'Bats','Bird')),
+         Task = factor(Task, levels=tsk_lv)
+         )
+
+labels <- levels(df_bio_stats_fn$Taxon)
+li_brks <- c(1,2,3,4,5,6,7,8,10,11,12,13,14,15,17,18)
+df_bio_stats_fn <- df_bio_stats_fn %>% arrange(factor(Task, levels=tsk_lv))
+df_bio_stats_fn$aux <- rep(li_brks, times = table(df_bio_stats_fn$Task))
+
+# heatmap
+ggplot(df_bio_stats_fn, aes(x=aux, y=Taxon, fill=value))+
+  geom_tile(aes(fill=value, width=0.95, height=0.95), size=2)+
+  #scale_fill_viridis(discrete=FALSE)+
+  scale_fill_gradientn(
+    colours = c("#0d3b66", "#faf0ca","#f4d35e", "#ee964b", "#f95738"),
+    values = scales::rescale(c(0,1,5,15,30)),
+    name = 'Count'
+  )+
+  scale_x_discrete(breaks=li_brks, labels=levels(df_bio_stats_fn$Task), limits=li_brks)+
+  theme_minimal()+
+  #facet_wrap(~Level, ncol=3)+
+  theme(axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title.x=element_blank(),
+        axis.text.x=element_text(size=10, family="Times", angle=90),
+        #axis.text.x=element_blank(),
+        axis.text.y=element_text(face='bold', family='Times', size=12, color='black'),
+        legend.text=element_text(family='Times', size=12),
+        legend.title=element_text(family='Times', size=18),
+        axis.title.y=element_blank(),
+        panel.spacing.y=unit(0, 'lines'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        #strip.text.y.left = element_text(angle=0),
+        strip.text.y.left = element_text(face='bold', size=18, family='Times'),
+        strip.placement = "outside")
+
+
+sum((df_bio_stats_fn %>% filter(Level=='population'))$value)
+sum((df_bio_stats_fn %>% filter(Level=='community'))$value)
+sum((df_bio_stats_fn %>% filter(Level=='ecosystem'))$value)
+# ===========================================================================
+
+# First create a filtered version of map_loc for countries with studies
+map_loc_studies <- map_loc[map_loc$Count > 0,]
+
+freq_map <- tm_shape(map_loc_studies) +
+  tm_fill("Count", 
+          fill.legend = tm_legend(
+            title = 'Frequency of study \nareas in each country',
+            na.show = FALSE,
+            title.fontfamily = 'Times',
+            title.fontface = 2,
+            text.fontfamily = 'Times',
+            item_text.margin = 3
+          ),
+          fill.scale = tm_scale_intervals(values = map_pal, style = "jenks", label.na = FALSE)
+  ) +
+  tm_borders(col = 'black', lwd = 0.5) +
+  # Add the admin boundaries layer for all countries
+  tm_shape(admin) +
+  tm_borders(col = 'black', lwd = 0.2, alpha = 0.5) +
+  tm_layout(frame = FALSE)
+
+tmap_save(tm = freq_map, filename = "viz/country_frequency_map_2025_default.png")

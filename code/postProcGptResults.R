@@ -63,7 +63,8 @@ colnames(kept4)
 # manually removed J1967 because it doesn't measure habitat structure or animals in 3d
 # manually removed J1993 because it is about classifying species in audio recordings
 # manually removed J3251 because it is not using vertical layers or other 3d stuff
-# manually removed J3313, J3431, J4605, J5848, J5678, 488, J0359, J1071, J4743, J4111, J5978, J0717, J0568, J2528 because they are not using 3d stuff
+# manually removed J3313, J3431, J4605, J5848, J5678, 488, J0359, J1071, J4743, J4111, J5978, J0717, J0568, J2528, J0201, J0332, J0571, J0583, J1241, J1781, J2130, J2733, J3260, J3764, J4227, J4335, J4449, J4867, J5737, J6181, 
+# J0199, J0200, J0203, J0204, J0505, J0506 because they are not using 3d stuff
 # manually removed J3651 because it is a review
 # manually removed J3954 because it is a commentary
 # manually removed J4206 because it is about faunal communities (no animals)
@@ -75,6 +76,8 @@ colnames(kept4)
 # manually removed 016, 295 because they are not about animals
 # manually removed J0326 because it is about maize depth
 
+
+# note: J3260 - only mentions categorical vertical structural complexity with no other quantitative measurements
 # not removed but hallucinating...
 # J2067
 

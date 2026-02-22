@@ -3,7 +3,7 @@
 pkgs <- c('dplyr', 'tidyr', 'readxl', 'writexl', 'caret')
 lapply(pkgs, library, character.only=TRUE)
 
-gpt <- read.csv('output/gpt_analysis_results.csv')
+gpt <- read.csv('output/gpt_analysis_results_raw.csv')
 
 df_col_name <- colnames(gpt)
 regex_names <- df_col_name[endsWith(df_col_name, "_Regex")]
@@ -64,7 +64,11 @@ colnames(kept4)
 # manually removed J1993 because it is about classifying species in audio recordings
 # manually removed J3251 because it is not using vertical layers or other 3d stuff
 # manually removed J3313, J3431, J4605, J5848, J5678, 488, J0359, J1071, J4743, J4111, J5978, J0717, J0568, J2528, J0201, J0332, J0571, J0583, J1241, J1781, J2130, J2733, J3260, J3764, J4227, J4335, J4449, J4867, J5737, J6181, 
-# J0199, J0200, J0203, J0204, J0505, J0506 because they are not using 3d stuff
+# J0199, J0200, J0203, J0204, J0505, J0506, J0573, J0877, J1213, J1416, J1471, J1508, J1687, J1718, J1744, J1794, J1928, J2413, J2561, J2598, J2699, J2936, J3270, J3420, J3477, J3540, J3752, J3957, J4082, J4238, J4483, J4484, J4639, J4760 
+# J4899, J4909 (only slightly relevant - understorey cover), J4986, J5265, J5942, J6120 because they are not using 3d stuff
+# manually removed J1803 because it only introduces overall forest structure (i.e., height) of study area, not so relevant to actual analyses
+# J2734 - vertical antenna height, not animal height
+# manually removed J1476 because it is about water depths
 # manually removed J3651 because it is a review
 # manually removed J3954 because it is a commentary
 # manually removed J4206 because it is about faunal communities (no animals)

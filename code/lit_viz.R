@@ -7,6 +7,7 @@
 # version: 03/03/2025
 # version: 03/20/2025
 # version: 05/06/2025
+# version: 02/22/2026
 
 pkgs <- c('plyr', 'tidyverse', 'sf', 'biscale', 'hrbrthemes', 'dplyr', 'tidyr',
           'networkD3', 'RColorBrewer', 'VennDiagram', 'cowplot', 'stringr', 'readxl',
@@ -28,7 +29,7 @@ df01 <- df00 %>% select(ID, `Publication Year`) %>% mutate(
 colnames(df01) <- c('ID', 'pub year')
 
 # read the expansive search results
-df0 <- read_excel('output/gpt_results_kept4_codebook_April.xlsx')
+df0 <- read_excel('output/gpt_results_kept4_codebook_May.xlsx')
 
 # get pub year info
 df <- merge(df0, df01, by='ID', all.x=TRUE)
@@ -163,13 +164,49 @@ li_map_country <- unique(map_loc$NAME_EN)
 
 setdiff(li_lit_country, li_map_country)
 
-map_pal <- c("white","#EDEF5C","#97D267","#47B679","#009780","#00767A")
-
-# ============== equal breaks ===============
+map_pal <- c("white","#EDEF5C","#97D267","#47B679","#009780",
+             #"#264653"
+             #"#00767A",
+             "#005f62"
+             #"#004f52"
+             )
 map_loc_studies <- map_loc[map_loc$Count >= 0,]
-
-# get break point values for quantile
 non_zero_counts <- map_loc_studies$Count[map_loc_studies$Count > 0]
+# ============== equal breaks ===============
+freq_map <- tm_shape(map_loc_studies) + 
+  tm_fill("Count", 
+          fill.legend = tm_legend(
+            title = 'Number of study areas \nby country',
+            na.show = FALSE,
+            title.fontfamily = 'Times',
+            title.fontface = 2,
+            text.fontfamily = 'Times',
+            item_text.margin = 3,
+            labels = c("0", "1 - 20", "20 - 40", "40 - 60", "60 - 80", "80 - 100", "100 - 120","120 - 310"),
+            frame = TRUE,
+            frame.lwd = 0.5,
+            frame.color = "black",
+            legend.show.borders = TRUE,  # Try to force borders
+            legend.border.color = "black",  # Set border color
+            legend.border.lwd = 0.5  # Set border width
+          ),
+          fill.scale = tm_scale_intervals(
+            values = map_pal,
+            breaks = c(0, 1, 20, 40, 60, 80, 100, 120, 310),
+            style = "fixed",
+            label.na = FALSE,
+            interval.closure = "left"  # This might help with legend display
+          )
+  ) +
+  tm_borders(col = 'black', lwd = 0.5) +
+  tm_layout(
+    frame = FALSE
+  )
+
+tmap_save(tm = freq_map, filename = "viz/country_frequency_map_2025_eq_breaks.png")
+
+# ============== quantile breaks ===============
+# get break point values for quantile
 quantile(non_zero_counts, probs = seq(0, 1, length.out = 8))
 
 freq_map <- tm_shape(map_loc_studies) + 
@@ -181,7 +218,7 @@ freq_map <- tm_shape(map_loc_studies) +
             title.fontface = 2,
             text.fontfamily = 'Times',
             item_text.margin = 3,
-            labels = c("0", "1", "2", "3 - 5", "5 - 8", "8 - 18", "18 - 325"),
+            labels = c("0", "1", "2", "3 - 5", "5 - 8", "8 - 16", "16 - 310"),
             frame = TRUE,
             frame.lwd = 0.5,
             frame.color = "black",
@@ -191,7 +228,7 @@ freq_map <- tm_shape(map_loc_studies) +
           ),
           fill.scale = tm_scale_intervals(
             values = map_pal,
-            breaks = c(0, 1, 2, 3, 5, 8, 18, 325),
+            breaks = c(0, 1, 2, 3, 5, 8, 16, 310),
             style = "fixed",
             label.na = FALSE,
             interval.closure = "left"  # This might help with legend display
@@ -229,12 +266,12 @@ map_loc_bivar <- map_loc_bivar[c('NAME_EN', '3dStruc_cnt', '3dAnim_cnt')]
 map_loc_bivar[is.na(map_loc_bivar)] <- 0
 
 # ======= bivariate Choropleth Map [not used] =======
-#df_map_loc_bivar <- map_loc_bivar
-#df_map_loc_bivar$geometry <- NULL
+df_map_loc_bivar <- map_loc_bivar
+df_map_loc_bivar$geometry <- NULL
 
-#bivar_loc <- bi_class(map_loc_bivar, x='3dStruc_cnt', y='3dAnim_cnt', 
-#                      style='equal', 
-#                      dim=4)
+bivar_loc <- bi_class(map_loc_bivar, x='3dStruc_cnt', y='3dAnim_cnt', 
+                      style='equal', 
+                      dim=4)
 
 # customize the classes
 #bivar_label <- list('bi_x'=c('0', '1', '5', '50', '268'), 
@@ -245,8 +282,8 @@ bivar_label <- list('bi_x'=c('10', '40', '70', '100', '300'),
                     'bi_y'=c('10', '40', '70', '100', '300'))
 
 # to highlight countries with not many papers
-bivar_label <- list('bi_x'=c('0', '5', '10', '15', '300'), 
-                    'bi_y'=c('0', '5', '10', '15', '300'))
+bivar_label <- list('bi_x'=c('0', '10', '20', '30', '200'), 
+                    'bi_y'=c('0', '10', '20', '30', '200'))
 #map_loc_bivar <- map_loc_bivar %>% mutate(
 #  class_struc = ifelse(`3dStruc_cnt`>=50, 4, ifelse(`3dStruc_cnt`>=5, 3, ifelse(`3dStruc_cnt`>=1, 2, 1))),
 #  class_anim = ifelse(`3dAnim_cnt`>=10, 4, ifelse(`3dAnim_cnt`>=3, 3, ifelse(`3dAnim_cnt`>=1, 2, 1))),
@@ -254,12 +291,12 @@ bivar_label <- list('bi_x'=c('0', '5', '10', '15', '300'),
 #)
 
 map_loc_bivar <- map_loc_bivar %>% mutate(
-  class_struc = ifelse(`3dStruc_cnt`>=15, 4, ifelse(`3dStruc_cnt`>=10, 3, ifelse(`3dStruc_cnt`>=5, 2, ifelse(`3dStruc_cnt`>0, 1, 0)))),
-  class_anim = ifelse(`3dAnim_cnt`>=15, 4, ifelse(`3dAnim_cnt`>=10, 3, ifelse(`3dAnim_cnt`>=5, 2, ifelse(`3dAnim_cnt`>0, 1, 0)))),
+  class_struc = ifelse(`3dStruc_cnt`>=30, 4, ifelse(`3dStruc_cnt`>=20, 3, ifelse(`3dStruc_cnt`>=10, 2, ifelse(`3dStruc_cnt`>=0, 1, 0)))),
+  class_anim = ifelse(`3dAnim_cnt`>=30, 4, ifelse(`3dAnim_cnt`>=20, 3, ifelse(`3dAnim_cnt`>=10, 2, ifelse(`3dAnim_cnt`>=0, 1, 0)))),
   bi_class = paste0(as.character(class_struc), '-', as.character(class_anim))
 )
 
-
+unique(map_loc_bivar$bi_class)
 #tmp <- biscale::bi_class_breaks(
 #  map_loc_bivar,
 #  x = `3dStruc_cnt`,
@@ -274,8 +311,8 @@ map_bivar <- ggplot()+
   bi_scale_fill(pal="BlueYl", dim=length(bivar_label$bi_x)-1)+
   labs(title = "",
        subtitle =  "")+
-  bi_theme()+
-  geom_sf(data=admin, fill=NA, color="black", size=0.05)
+  bi_theme() + 
+  geom_sf(data=admin, fill='NA', color="black", size=0.05)
 
 legend <- bi_legend(pal = "BlueYl",
                     breaks = bivar_label,
@@ -291,7 +328,7 @@ finalPlot <- ggdraw() +
 
 # finalPlot
 
-ggsave(filename = "viz/bivar_3d_map_eq_few.png",
+ggsave(filename = "viz/bivar_3d_map.png",
        dpi=300,
        width = 12,
        height = 5,
@@ -304,12 +341,14 @@ map_loc_prop <- map_loc_bivar %>% mutate(
   prop = ifelse(`3dStruc_cnt`*`3dAnim_cnt`>0, `3dStruc_cnt`/`3dAnim_cnt`, NA)
 )
 
+summary(map_loc_prop$prop)
+
 prop_map <- tm_shape(map_loc_prop) +
   tm_polygons(
     fill = "prop",
     fill.scale = tm_scale_continuous(midpoint=1,
-                                     ticks = c(0.333, 1, 3, 6),
-                                     limits = c(0.333, 6),
+                                     ticks = c(0.333, 1, 3, 6, 17),
+                                     limits = c(0.333, 17),
                                      values = c("#1065ab",
                                                 "#1065ab",
                                                 #"#3a93c3", 
@@ -319,12 +358,14 @@ prop_map <- tm_shape(map_loc_prop) +
                                                 "#d1e5f0",
                                                 "#f9f9f9", 
                                                 #"#fedbc7", 
-                                                "#f6a582", 
-                                                "#d75f4c", "#b3152a"
+                                                "#f6a582",
+                                                "#d75f4c",
+                                                #"#b3152a",
+                                                "#b3152a"
                                                 ),
                                      value.na = "#FFFFFF",
                                      label.na = "NA",
-                                     labels = c("1:3", "1:1", "3:1", "6:1")
+                                     labels = c("1:3", "1:1", "3:1", "6:1", "17:1")
                                      ),
     fill.legend = tm_legend(
       title = 'Studies on 3D structure \nvs 3D biodiversity \n(Ratio)',
@@ -342,7 +383,7 @@ prop_map <- tm_shape(map_loc_prop) +
 
 tmap_save(tm = prop_map, filename = "viz/country_prop3d_map_2025_default.png")
 
-  # ========= Habitat types ==========
+# ========= Habitat types ==========
 unique(df1$Habitat_Types)
 # OMG this is not clean at all! Okay let's create a new data frame to hack this
 dfhab <- df1 %>% select(c("ID", "Habitat_Types"))
@@ -602,21 +643,28 @@ topic_p <- ggplot(df_long_xy, aes(xval, rel, fill=Freq_grp))+
   #  name = 'Number of Papers'
   #)+
   scale_fill_manual(
-    values = c("0"="white", "1-5"="gray",
-                "5-10"="#dccd7d", "10-50"="#94cbec", "50-150"="#5da899", ">150"="#337538"),
+    values = c(
+      #"0"="#F0FFFF", 
+               "0"="#B6D0E2",
+               "1-5" = "#94cbec",
+               #"1-5"="gray",
+               "10-50"="#96DED1", 
+               #"10-50"="#94cbec", 
+               "50-150"="#5da899", 
+               ">150"="#337538"),
     breaks= c("0", "1-5", "5-10", "10-50", "50-150", ">150"),
     name = "Number of Papers"
   )+
   #facet_wrap(~rel, nrow=4, strip.position = "left")
   theme_minimal()+
-  scale_x_discrete(labels=c("3D Structure", "Both", "3D Biodiversity"))+
+  scale_x_discrete(labels=c("Habitat structure is 3D", "Both are 3D", "Biodiversity is 3D"))+
   theme(axis.ticks.x=element_blank(),
         axis.ticks.y=element_blank(),
         axis.title.x=element_blank(),
-        axis.text.x=element_text(face='bold', size=15, family="Times", color='black'),
+        axis.text.x=element_text(face='bold', size=15, family="Times", color='black', angle=15, hjust=0.8),
         axis.text.y=element_text(family='Times', size=16),
         legend.text=element_text(family='Times', size=14),
-        legend.title=element_text(face='bold',family='Times', size=17),
+        legend.title=element_text(face='bold',family='Times', size=17, margin=margin(b=15)),
         axis.title.y=element_blank(),
         panel.spacing.y=unit(0, 'lines'),
         panel.grid.major = element_blank(),
@@ -635,11 +683,12 @@ df_hab <- df1 %>% filter(if3dStruc==1) %>%
                            if_lidar==0 & `Method_Other.Remote.Sensing_GPT`==1 & `Method_Field.Sampling_GPT`==1, 'Field and Other RS', 
                            ifelse(if_lidar==1&`Method_Field.Sampling_GPT`==1, 'LiDAR and Field', 'Other')))))
 
+# see what other types are:
+hab_data_other <- df_hab %>% filter(is.na(hab_data))
 
 df_hab <- df_hab %>% mutate(
   hab_data=factor(hab_data, levels=c('Field Only', 'LiDAR Only', 'LiDAR and Field', 'Field and Other RS')
 ))
-
 df_hab$year_5 <- 5*ceiling(df_hab$year/5)
 
 hab_data_p <- ggplot(data=df_hab)+
@@ -660,12 +709,12 @@ hab_data_p <- ggplot(data=df_hab)+
   theme_bw()+
   theme(axis.ticks.x=element_blank(),
         axis.ticks.y=element_blank(),
-        axis.title.y=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=0,r=10,b=0,l=0)),
-        axis.title.x=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=10, r=0, b=0, l=0)),
-        axis.text.x=element_text(family="Times", size=12, margin=margin(t=-5,r=0,b=0, l=0), hjust = -0.5),
-        axis.text.y=element_text(family='Times', size=12),
-        legend.text=element_text(family='Times', size=12),
-        legend.title=element_text(family='Times', size=18),
+        axis.title.y=element_text(face='bold', family='Arial', size=18, color='black', margin=margin(t=0,r=10,b=0,l=0)),
+        axis.title.x=element_text(face='bold', family='Arial', size=18, color='black', margin=margin(t=10, r=0, b=0, l=0)),
+        axis.text.x=element_text(family="Arial", size=10, margin=margin(t=-5,r=0,b=0, l=0), hjust = -0.5),
+        axis.text.y=element_text(family='Arial', size=12),
+        legend.text=element_text(family='Arial', size=12),
+        legend.title=element_text(family='Arial', size=18),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.border = element_blank()) +
@@ -680,8 +729,11 @@ a <- df_hab[is.na(df_hab$hab_data), ]
 df_hab_lidar <- df_hab %>% filter(if_lidar==1)
 
 sum(df_hab$if_lidar)
+# sum(df_hab$Method_Field.Sampling_GPT)
 nrow(df_hab[df_hab$hab_data =="Field Only", ])
 sum(df_hab_lidar$Method_Spaceborne.Lidar_GPT)
+sum(df_hab_lidar$Method_Airborne.Lidar_GPT)
+sum(df_hab_lidar$Method_Terrestrial.Lidar_GPT)
 
 
 # ===== Group 2 Biodiversity ======
@@ -691,7 +743,7 @@ df1 <- df1 %>% mutate(
   Bats = ifelse(grepl("bats", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
   Primates = ifelse(grepl("primates", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
   OtherMammals = ifelse(grepl("ungulates|ocelots|bobcats|coyotes|marsupials|rodents|other_mammals|small mammals|deer|jaguars|carnivores|lagomorphs|livestock|moose|lemurs", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
-  Invertebrates = ifelse(grepl("moth|insect|spider|arthropod|spider|orthopterans|bee|wasp|syrphids|carabids|beetles", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
+  Invertebrates = ifelse(grepl("invert|moth|insect|spider|arthropod|spider|orthopterans|bee|wasp|syrphids|carabids|beetles", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
   Reptiles = ifelse(grepl("reptiles|lizards", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0),
   Amphibians = ifelse(grepl("amphibians|frog|anuran", Animal_Taxa_Studied, ignore.case=TRUE), 1, 0)
 )
@@ -727,11 +779,11 @@ df3dbio_t <- df3d2dbio_long[df3d2dbio_long$if3dAnim=='3D',]
 nrow(df3dbio_t[df3dbio_t$Taxa=='Birds',])
 nrow(df3dbio_t[df3dbio_t$Taxa=='Other Mammals',])
 nrow(df3dbio_t[df3dbio_t$Taxa=='Bats',])
-nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Primates',])
+# nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Primates',])
 nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Primates' & df3d2dbio_long$if3dAnim=='3D',])
 nrow(df3dbio_t[df3dbio_t$Taxa=='Reptiles',])
 nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Amphibians',])
-nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Invertebrates',])
+# nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Invertebrates',])
 nrow(df3d2dbio_long[df3d2dbio_long$Taxa=='Invertebrates' & df3d2dbio_long$if3dAnim=='3D',])
 
 
@@ -798,7 +850,12 @@ df3dBio_cont <- df3dBio_cont[!duplicated(df3dBio_cont),]
 df3dBio_cont <- df3dBio_cont[df3dBio_cont$CONTINENT!="Seven seas (open ocean)",]
 df3dBio_cont <- df3dBio_cont[!is.na(df3dBio_cont$CONTINENT),]
 df3dBio_cont <- df3dBio_cont %>%
-  mutate(CONTINENT = factor(CONTINENT, levels=c('Oceania', 'Africa', 'Asia', 'South America','Europe', 'North America')))
+  mutate(CONTINENT=ifelse(CONTINENT=='South America', 'South\nAmerica', ifelse(
+    CONTINENT=='North America', 'North\nAmerica', CONTINENT
+  ) ))
+df3dBio_cont <- df3dBio_cont %>%
+  mutate(CONTINENT = factor(CONTINENT, levels=c('Oceania', 'Africa', 'Asia', 'Europe', 'South\nAmerica', 'North\nAmerica')))
+
 
 bio_cont_p <- ggplot(data=df3dBio_cont)+
   geom_histogram(aes(x=CONTINENT, fill=Taxa), stat='count', color='white', alpha=0.9)+
@@ -816,12 +873,12 @@ bio_cont_p <- ggplot(data=df3dBio_cont)+
   theme_bw()+
   theme(axis.ticks.x=element_blank(),
         axis.ticks.y=element_blank(),
-        axis.title.y=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=0,r=10,b=0,l=0)),
-        axis.title.x=element_text(face='bold', family='Times', size=18, color='black', margin=margin(t=0, r=0, b=0, l=0)),
-        axis.text.x=element_text(family="Times", size=15, margin=margin(t=0,r=0,b=0, l=0), angle=30),
-        axis.text.y=element_text(family='Times', size=12),
-        legend.text=element_text(family='Times', size=12),
-        legend.title=element_text(family='Times', size=18),
+        axis.title.y=element_text(face='bold', family='Arial', size=18, color='black', margin=margin(t=0,r=10,b=0,l=0)),
+        axis.title.x=element_text(face='bold', family='Arial', size=18, color='black', margin=margin(t=0, r=0, b=0, l=0)),
+        axis.text.x=element_text(family="Arial", size=15, margin=margin(t=0,r=0,b=0, l=0), angle=30),
+        axis.text.y=element_text(family='Arial', size=12),
+        legend.text=element_text(family='Arial', size=12),
+        legend.title=element_text(family='Arial', size=18),
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.border = element_blank()) +
@@ -831,6 +888,8 @@ bio_cont_p <- ggplot(data=df3dBio_cont)+
 bio_cont_p
 ggsave(filename='viz/hist_3dbio_continent.png', bio_cont_p, width=8, height=6)
 
+nrow(df3dBio_cont %>% filter(CONTINENT == 'South America'))
+nrow(df3dBio_cont %>% filter(CONTINENT == 'North America'))
 # [not used] try creating a wordcloud on research tasks
 #library(wordcloud)
 #wordcloud(df1$Animal_Major.Tasks_Metrics)
@@ -942,3 +1001,22 @@ freq_map <- tm_shape(map_loc_studies) +
   tm_layout(frame = FALSE)
 
 tmap_save(tm = freq_map, filename = "viz/country_frequency_map_2025_default.png")
+
+# ================= count conceptual terms ==========
+df_concepts <- df0
+colnames(df_concepts)
+
+concept_3d <- df0 %>% filter(grepl("3D|three-dimension|three dimension", Abstract, ignore.case=TRUE)) %>% select(ID, Title, Abstract)
+targets <- c('3D', 'three-dimension(?:al)?', 'three dimension(?:al)?')
+combined_targets <- paste0("(?:", paste(targets, collapse = "|"), ")")
+pattern <- paste0(combined_targets, "\\W+(\\S+\\s+\\S+)")
+concept_3d <- concept_3d %>% mutate(
+  phrase = str_match(Abstract, regex(pattern, ignore_case = TRUE))[, 2]
+)
+
+
+concept_vertical <- df0 %>% filter(grepl("vertical", Abstract, ignore.case=TRUE)) %>% select(ID, Title, Abstract)
+
+concept_vegstruc <- df0 %>% filter(grepl("vegetation structure", Abstract, ignore.case=TRUE)) %>% select(ID, Title, Abstract)
+
+rest <- df0 %>% filter(!ID %in% unique(concept_3d$ID) & !ID %in% unique(concept_vertical$ID)) %>% select(ID, Title, Abstract)

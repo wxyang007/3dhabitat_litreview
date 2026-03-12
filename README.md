@@ -42,7 +42,7 @@ Recommended citation: **Yang, W.***, Frazier, A. E., Kedron, P., Song, L., Wu, J
 - **Script**: [`code/lit_viz.R`](code/lit_viz.R)
 - **Inputs**:
   - `data/lit_coding_241230.xlsx` (sheets `Journal articles`, `Biodiversity`, `Bio-info`)
-  - `output/gpt_results_kept4_codebook_May.xlsx`
+  - `output/gpt_results_kept4_codebook_Feb2026.xlsx`
   - `data/worldbound/reproj.shp`
 
 ## Final output

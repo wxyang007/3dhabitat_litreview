@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 .DS_Store
 .Rhistory
 .idea/
@@ -19,3 +20,17 @@ code/logs/
 *.pyc
 *.xml
 *.iml
+=======
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+code/logs/analysis_20250125_173730.log
+*.log
+/.idea
+/code/cache
+*.pyc
+*.pdf
+>>>>>>> Stashed changes
+/viz
+/lit

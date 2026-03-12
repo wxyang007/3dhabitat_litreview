@@ -4,37 +4,33 @@ This repository accompanies the review article:
 Authors: Wenxin Yang, Amy E. Frazier, Peter Kedron, Lei Song, Jianguo Wu, Trisalyn Nelson
 
 ## Repository structure
-- **`data/`**: GIS boundary data
+- **`data/`**: Initial search result from Web of Science & GIS boundary data
 - **`code/`**: Analysis + processing scripts
 - **`code/output/`**: Model outputs / intermediate tables used by the analysis
 
 ## Workflow
 
 ### A) Build the literature dataset
-#### Step A1 — Merge literature tables into a unified list
-- **Script**: [`code/mergeLitTabs.R`](code/mergeLitTabs.R)
-- **Purpose**: Merges the “focused search” tab with the boosted-search training/prediction sets, removes duplicates, and writes a merged spreadsheet used for downstream steps.
-
-#### Step A2 — Download PDFs
+#### Step A1 — Download PDFs
 - **Scripts** (utilities):
   - [`code/download_papers.py`](code/download_papers.py)
   - [`code/paper_downloader.py`](code/paper_downloader.py)
   - [`code/download_with_doi.py`](code/download_with_doi.py)
   - [`code/file_search.py`](code/file_search.py)
   - [`code/get_dois.py`](code/get_dois.py)
-- **Purpose**: Helpers to assemble DOIs/links and bulk download PDFs. (Exact inputs/outputs depend on which helper you run.)
+- **Purpose**: Helpers to assemble DOIs/links and bulk download PDFs.
 
-#### Step A3 — Extract structured information from PDFs with GPT
+#### Step A2 — Extract structured information from PDFs with GPT
 - **Script**: [`code/Analysis_get_info.py`](code/Analysis_get_info.py)
 - **Supporting modules**:
   - `code/analyzers/`, `code/extractors/`, `code/utils/`, [`code/config.py`](code/config.py)
 - **Purpose**: Reads PDFs, extracts relevant sections, runs the combined analysis, and saves results to CSV.
 
-#### Step A4 — Post-process GPT results and filter to the included set
+#### Step A3 — Post-process GPT results and filter to the included set
 - **Script**: [`code/postProcGptResults.R`](code/postProcGptResults.R)
 - **Purpose**: Loads raw GPT outputs, merges in literature metadata (title/year/abstract), applies inclusion/exclusion filters, and writes a “kept” spreadsheet for manual codebook refinement.
 
-#### Step A5 — Validate GPT extraction against a hand-coded sample
+#### Step A4 — Validate GPT extraction against a hand-coded sample
 - **Script**: [`code/validateGPTResult.R`](code/validateGPTResult.R)
 - **Purpose**: Joins GPT outputs to a 100-paper validation codebook and prepares comparison tables; also appends abstracts into the merged literature sheet.
 
@@ -47,3 +43,4 @@ Authors: Wenxin Yang, Amy E. Frazier, Peter Kedron, Lei Song, Jianguo Wu, Trisal
   - `data/worldbound/reproj.shp`
 
 ## Final output
+- **Cleaned tab**: [`output/gpt_results_kept4_codebook_Feb2026.xlsx`](output/gpt_results_kept4_codebook_Feb2026.xlsx)

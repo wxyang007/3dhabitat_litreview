@@ -1,0 +1,21 @@
+.DS_Store
+.Rhistory
+.idea/
+
+# R / Python misc
+.Rproj.user/
+__pycache__/
+*.pyc
+
+# Generated outputs / caches (keep code, ignore artifacts)
+code/cache/
+code/logs/
+*.pdf
+/.Rproj.user
+/code/analyzers/__pycache__
+/code/cache
+*.log
+/code/utils/__pycache__
+*.pyc
+*.xml
+*.iml

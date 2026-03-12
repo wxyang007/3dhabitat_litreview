@@ -450,9 +450,9 @@ hab_p <- ggplot(df2, aes(x = "" , y = count, fill = fct_inorder(label))) +
     legend.text = element_text(size=12),
     legend.spacing.y=unit(10, 'inch'),
     legend.spacing.x=unit(10, 'inch')) +
-  guides(fill = guide_legend(title = "Habitat Types", byrow=TRUE, theme(legend.spacing.y=unit(10, 'inch'))))
+  guides(fill = guide_legend(title = "Ecosystem Types", byrow=TRUE, theme(legend.spacing.y=unit(10, 'inch'))))
 
-ggsave(filename='viz/habitat_type.png', hab_p, height=10, width=15)
+ggsave(filename='viz/ecosystem_type.png', hab_p, height=10, width=15)
 
 # [not used] try lollipop chart
 #ggplot(freq_hab_t, aes(x=name, y=count))+

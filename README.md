@@ -4,10 +4,9 @@ This repository accompanies the review article:
 Authors: Wenxin Yang, Amy E. Frazier, Peter Kedron, Lei Song, Jianguo Wu, Trisalyn Nelson
 
 ## Repository structure
-- **`data/`**: Human-coded literature coding workbook(s), GIS boundary data
+- **`data/`**: GIS boundary data
 - **`code/`**: Analysis + processing scripts
 - **`code/output/`**: Model outputs / intermediate tables used by the analysis
-- **`viz/`**: Figures produced by the analysis scripts
 
 ## Workflow
 
